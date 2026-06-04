@@ -205,7 +205,7 @@ function App() {
 
   // PWA customized logo URL
   const [logoUrl, setLogoUrl] = useState(() => {
-    return localStorage.getItem('mf_logo') || '/logo.png';
+    return localStorage.getItem('mf_logo') || 'logo.png';
   });
 
   const [toast, setToast] = useState({ visible: false, message: '', type: 'success' });
@@ -296,7 +296,7 @@ function App() {
   };
 
   const resetLogo = () => {
-    setLogoUrl('/logo.png');
+    setLogoUrl('logo.png');
     localStorage.removeItem('mf_logo');
     showToast('Logo redefinida para a padrão.');
   };
@@ -355,7 +355,7 @@ function App() {
     setFaltas(['S/A']);
     setAtrasos(['S/A']);
     setDispensas(['S/A']);
-    setLogoUrl('/logo.png');
+    setLogoUrl('logo.png');
     localStorage.removeItem('mf_logo');
     setShowClearConfirm(false);
     showToast('Formulário limpo com sucesso!', 'info');
@@ -1006,7 +1006,7 @@ function App() {
                 >
                   <Upload className="w-3.5 h-3.5" />
                 </button>
-                {logoUrl !== '/logo.png' && (
+                {logoUrl !== 'logo.png' && (
                   <button 
                     onClick={resetLogo} 
                     className="p-1 bg-rose-600 rounded text-white hover:bg-rose-700 cursor-pointer"
