@@ -163,10 +163,20 @@ const IncidentListField = ({ label, items, placeholder, onAdd, onChange, onRemov
 
 const normalizeRank = (rank) => (rank || '').toUpperCase().replace(/°/g, 'º').trim();
 
+// RESTRIÇÃO DE SA LESTE
 const isAllowedSA = (rank) => {
-  return normalizeRank(rank) === 'CAP QOPM';
+  const r = normalizeRank(rank);
+  const allowed = [
+    'CAP QOPM',
+    '1º TEN QOPM',
+    '1º TEN QOAPM',
+    '2º TEN QOPM',
+    '2º TEN QOAPM'
+  ];
+  return allowed.includes(r);
 };
 
+// RESTRIÇÃO DE SSA LESTE
 const isAllowedSSA = (rank) => {
   const r = normalizeRank(rank);
   const allowed = [
@@ -339,7 +349,7 @@ function App() {
         if (isAllowedSA(p.postoGrad)) {
           newHeader.cpoNome = `${p.postoGrad} ${p.nomeGuerra}`;
         } else {
-          showToast(`O policial ${p.nomeGuerra} (${p.postoGrad}) não pode ser SA Leste. Apenas CAP QOPM é permitido.`, 'error');
+          showToast(`O policial ${p.nomeGuerra} (${p.postoGrad}) não pode ser SA Leste. Apenas CAP QOPM, 1º/2º TEN QOPM/QOAPM são permitidos.`, 'error');
           newHeader.cpoNome = '';
         }
       } else if (cleanId === '') {
@@ -383,9 +393,16 @@ function App() {
 
   // Incident field arrays helpers (Mapa da Força)
   const handleAddIncidentItem = (category) => {
-    if (category === 'faltas') setFaltas([...faltas, '']);
-    if (category === 'atrasos') setAtrasos([...atrasos, '']);
-    if (category === 'dispensas') setDispensas([...dispensas, '']);
+    const processList = (list) => {
+      if (list.length === 1 && list[0] === 'S/A') {
+        return [''];
+      }
+      return [...list, ''];
+    };
+
+    if (category === 'faltas') setFaltas(processList(faltas));
+    if (category === 'atrasos') setAtrasos(processList(atrasos));
+    if (category === 'dispensas') setDispensas(processList(dispensas));
   };
 
   const handleRemoveIncidentItem = (category, index) => {
@@ -490,32 +507,35 @@ function App() {
     return filtered.join(', ');
   };
 
-  const generateTXTString = () => {
+  const generateTXTString = (currentTimeOverride) => {
     const dateFormatted = formatDateBR(header.data);
-    const timeFormatted = formatHourBR(header.hora);
+    const timeFormatted = formatHourBR(currentTimeOverride || header.hora);
     const turnoText = getTurnoText();
 
     const lines = [];
-    lines.push('MAPA DA FORÇA');
-    lines.push(`*BATALHÃO LESTE - ${dateFormatted}* ${timeFormatted}`);
+    lines.push('*MAPA DA FORÇA - CPA LESTE*');
+    lines.push(`*BATALHÃO LESTE - ${dateFormatted} ${timeFormatted}*`);
     lines.push(`*${turnoText}*`);
     lines.push('');
     lines.push(`*SA LESTE: ${header.cpoNome.toUpperCase().trim() || 'SEM IDENTIFICAÇÃO'} (${header.cpoId.trim() || 'N/C'})*`);
-    lines.push(`*TEL: ${header.telefone || 'N/I'}.*`);
+    const vtrText = header.vtrSa ? ` - VTR ${header.vtrSa.toUpperCase().trim()}` : '';
+    lines.push(`*TEL: ${header.telefone || 'N/I'}${vtrText}*`);
+    lines.push('___________________________________________');
     lines.push('');
-    lines.push('SUPERVISORES DE SUBÁREAS');
+    lines.push('*SUPERVISORES DE SUBÁREAS*');
 
     units.forEach(u => {
-      if (!u.isHQ) {
+      if (u.id !== 'cpa-leste') {
         const nameVal = u.supervisor ? u.supervisor.toUpperCase().trim() : 'S/A';
         const idVal = u.supervisorId ? ` (${u.supervisorId.trim()})` : '';
-        lines.push(`*SSA ${u.shortName} : ${nameVal}${idVal}*`);
+        const ssaName = u.name.replace(' CICOM', '');
+        lines.push(`SSA ${ssaName} : ${nameVal}${idVal}`);
       }
     });
 
-    lines.push('------------------------------------------');
-    lines.push('*VIATURAS MONTADAS*');
+    lines.push('__________________________________________');
     lines.push('');
+    lines.push('*VIATURAS MONTADAS*');
 
     units.forEach(u => {
       const vtrTotal = u.vtrOrd + u.vtrSeg;
@@ -530,11 +550,10 @@ function App() {
 
     lines.push('__________________________________________');
     lines.push('');
-    lines.push(`TOTAL GERAL DE VIATURAS: ${grandTotalViaturas}`);
+    lines.push(`*TOTAL GERAL DE VIATURAS: ${grandTotalViaturas}*`);
     lines.push('__________________________________________');
     lines.push('');
     lines.push('*EFETIVO*');
-    lines.push('');
 
     units.forEach(u => {
       const pmTotal = u.pmOrd + u.pmSeg;
@@ -549,18 +568,23 @@ function App() {
 
     lines.push('__________________________________________');
     lines.push('');
-    lines.push(`TOTAL GERAL PM's: ${grandTotalEfetivo}`);
+    lines.push(`*TOTAL GERAL PM's: ${grandTotalEfetivo}*`);
+    lines.push('__________________________________________');
     lines.push('');
     lines.push(`*FALTAS: ${formatIncidentText(faltas)}*`);
     lines.push(`*ATRASOS: ${formatIncidentText(atrasos)}*`);
     lines.push(`*DISPENSAS: ${formatIncidentText(dispensas)}*`);
+    lines.push('------------------------------------------');
     lines.push('');
     lines.push('*BOM SERVIÇO A TODOS!*');
+    lines.push('*"QUE DEUS NOS PROTEJA EM MAIS UM DIA DE SERVIÇO"*');
 
     return lines.join('\n');
   };
 
   const handleGeneratePDF = async () => {
+    const currentTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    setHeader(prev => ({ ...prev, hora: currentTime }));
     showToast('Gerando documento PDF...', 'info');
     try {
       const doc = new jsPDF({
@@ -621,7 +645,7 @@ function App() {
       doc.setFontSize(8.5);
 
       doc.text(`Data: ${formatDateBR(header.data)}`, 12, 45);
-      doc.text(`Hora do Registro: ${header.hora}`, 12, 50);
+      doc.text(`Hora do Registro: ${currentTime}`, 12, 50);
       doc.text(`Turno Operacional: ${getTurnoText()}`, 12, 55);
 
       const saNameText = header.cpoNome ? header.cpoNome.toUpperCase() : 'SEM IDENTIFICAÇÃO';
@@ -660,10 +684,10 @@ function App() {
       doc.text("ID", colX.id + 2, tableYStart + 4.5);
       doc.text("VTR ORD", colX.vtrOrd + 8.5, tableYStart + 4.5, { align: "center" });
       doc.text("VTR SEG", colX.vtrSeg + 8.5, tableYStart + 4.5, { align: "center" });
-      doc.text("VTR TOT", colX.vtrTotal + 8.5, tableYStart + 4.5, { align: "center" });
+      doc.text("VTR Total", colX.vtrTotal + 8.5, tableYStart + 4.5, { align: "center" });
       doc.text("PM ORD", colX.pmOrd + 8.5, tableYStart + 4.5, { align: "center" });
       doc.text("PM SEG", colX.pmSeg + 8.5, tableYStart + 4.5, { align: "center" });
-      doc.text("PM TOT", colX.pmTotal + 10, tableYStart + 4.5, { align: "center" });
+      doc.text("PM Total", colX.pmTotal + 10, tableYStart + 4.5, { align: "center" });
 
       let currentY = tableYStart + 7;
       doc.setTextColor(...textDark);
@@ -773,7 +797,9 @@ function App() {
 
   const handleCopyToClipboard = () => {
     try {
-      const text = generateTXTString();
+      const currentTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      setHeader(prev => ({ ...prev, hora: currentTime }));
+      const text = generateTXTString(currentTime);
       navigator.clipboard.writeText(text);
       showToast('Mapa da Força copiado para a área de transferência!');
     } catch (err) {
@@ -784,7 +810,9 @@ function App() {
 
   const handleDownloadTXT = () => {
     try {
-      const text = generateTXTString();
+      const currentTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      setHeader(prev => ({ ...prev, hora: currentTime }));
+      const text = generateTXTString(currentTime);
       const element = document.createElement("a");
       const file = new Blob([text], { type: 'text/plain;charset=utf-8' });
       element.href = URL.createObjectURL(file);
@@ -826,9 +854,9 @@ function App() {
     return result;
   };
 
-  const generateOccurrencesTXTString = () => {
+  const generateOccurrencesTXTString = (currentTimeOverride) => {
     const dateFormatted = formatDateBR(header.data);
-    const timeFormatted = formatHourBR(header.hora);
+    const timeFormatted = formatHourBR(currentTimeOverride || header.hora);
     const turnoText = getTurnoText();
 
     const lines = [];
@@ -864,7 +892,9 @@ function App() {
 
   const handleCopyToClipboardOcc = () => {
     try {
-      const text = generateOccurrencesTXTString();
+      const currentTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      setHeader(prev => ({ ...prev, hora: currentTime }));
+      const text = generateOccurrencesTXTString(currentTime);
       navigator.clipboard.writeText(text);
       showToast('Resumo de ocorrências copiado!');
     } catch (err) {
@@ -875,7 +905,9 @@ function App() {
 
   const handleDownloadOccTXT = () => {
     try {
-      const text = generateOccurrencesTXTString();
+      const currentTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+      setHeader(prev => ({ ...prev, hora: currentTime }));
+      const text = generateOccurrencesTXTString(currentTime);
       const element = document.createElement("a");
       const file = new Blob([text], { type: 'text/plain;charset=utf-8' });
       element.href = URL.createObjectURL(file);
@@ -893,6 +925,8 @@ function App() {
 
   // Compile PDF document for occurrences
   const handleGenerateOccurrencesPDF = async () => {
+    const currentTime = new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    setHeader(prev => ({ ...prev, hora: currentTime }));
     showToast('Gerando PDF de ocorrências...', 'info');
     try {
       const doc = new jsPDF({
@@ -952,7 +986,7 @@ function App() {
       doc.setFontSize(8.5);
 
       doc.text(`Data: ${formatDateBR(header.data)}`, 12, 45);
-      doc.text(`Hora do Registro: ${header.hora}`, 12, 50);
+      doc.text(`Hora do Registro: ${currentTime}`, 12, 50);
       doc.text(`Turno Operacional: ${getTurnoText()}`, 12, 55);
 
       const saNameText = header.cpoNome ? header.cpoNome.toUpperCase() : 'SEM IDENTIFICAÇÃO';
@@ -1306,12 +1340,12 @@ function App() {
               <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
                 <div className="flex items-center gap-2">
                   <Shield className="w-5 h-5 text-blue-600" />
-                  <h2 className="text-lg font-bold text-slate-800 tracking-wide uppercase">Distribuição por Unidade</h2>
+                  <h2 className="text-lg font-bold text-slate-800 tracking-wide uppercase">MONTAGEM DO EFETIVO DO MAPA DA FORÇA - BATALHÃO LESTE</h2>
                 </div>
-                <span className="text-xs font-medium text-slate-505 italic">Preenchimento de Efetivos & Meios</span>
+                <span className="text-xs font-medium text-slate-505 italic">Preenchimento de Efetivos e Viaturas</span>
               </div>
 
-              {/* Desktop Table View */}
+              {/* tELA DE LISTAGEM  VTR E PMS */}
               <div className="overflow-x-auto hidden md:block">
                 <table className="w-full text-left border-collapse">
                   <thead>
@@ -1321,10 +1355,10 @@ function App() {
                       <th className="py-3.5 px-4 w-[11%] border-r border-white/5">ID</th>
                       <th className="py-3.5 px-4 w-[8%] text-center border-r border-white/5">VTR ORD</th>
                       <th className="py-3.5 px-4 w-[8%] text-center border-r border-white/5">VTR SEG</th>
-                      <th className="py-3.5 px-4 w-[9%] text-center border-r border-white/5 font-bold">VTR TOT</th>
+                      <th className="py-3.5 px-4 w-[9%] text-center border-r border-white/5 font-bold">VTR Total</th>
                       <th className="py-3.5 px-4 w-[8%] text-center border-r border-white/5">PM ORD</th>
                       <th className="py-3.5 px-4 w-[8%] text-center border-r border-white/5">PM SEG</th>
-                      <th className="py-3.5 px-4 w-[10%] text-center font-bold">PM TOT</th>
+                      <th className="py-3.5 px-4 w-[10%] text-center font-bold">PM Total</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-200 text-slate-700 text-sm">
