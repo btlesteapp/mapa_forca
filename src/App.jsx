@@ -520,20 +520,20 @@ function App() {
     lines.push(`*SA LESTE: ${header.cpoNome.toUpperCase().trim() || 'SEM IDENTIFICAÇÃO'} (${header.cpoId.trim() || 'N/C'})*`);
     const vtrText = header.vtrSa ? ` - VTR ${header.vtrSa.toUpperCase().trim()}` : '';
     lines.push(`*TEL: ${header.telefone || 'N/I'}${vtrText}*`);
-    lines.push('___________________________________________');
+    lines.push('_________________________');
     lines.push('');
     lines.push('*SUPERVISORES DE SUBÁREAS*');
 
     units.forEach(u => {
       if (u.id !== 'cpa-leste') {
         const nameVal = u.supervisor ? u.supervisor.toUpperCase().trim() : 'S/A';
-        const idVal = u.supervisorId ? ` (${u.supervisorId.trim()})` : '';
-        const ssaName = u.name.replace(' CICOM', '');
-        lines.push(`SSA ${ssaName} : ${nameVal}${idVal}`);
+        const idVal = u.supervisorId ? `(${u.supervisorId.trim()})` : '';
+        const ssaName = u.name.replace('', '');
+        lines.push(`${ssaName}: ${nameVal}${idVal}`);
       }
     });
 
-    lines.push('__________________________________________');
+    lines.push('_________________________');
     lines.push('');
     lines.push('*VIATURAS MONTADAS*');
 
@@ -542,16 +542,16 @@ function App() {
       const paddedTotal = formatNum(vtrTotal);
 
       if (u.vtrSeg > 0) {
-        lines.push(`${u.name} : ${paddedTotal} (ORD ${formatNum(u.vtrOrd)} + SEG ${formatNum(u.vtrSeg)})`);
+        lines.push(`${u.name}: ${paddedTotal} (ORD ${formatNum(u.vtrOrd)} + SEG ${formatNum(u.vtrSeg)})`);
       } else {
-        lines.push(`${u.name} : ${paddedTotal}`);
+        lines.push(`${u.name}: ${paddedTotal}`);
       }
     });
 
-    lines.push('__________________________________________');
+    lines.push('_________________________');
     lines.push('');
-    lines.push(`*TOTAL GERAL DE VIATURAS: ${grandTotalViaturas}*`);
-    lines.push('__________________________________________');
+    lines.push(`*TOTAL DE VIATURAS: ${grandTotalViaturas}*`);
+    lines.push('_________________________');
     lines.push('');
     lines.push('*EFETIVO*');
 
@@ -560,24 +560,26 @@ function App() {
       const paddedTotal = formatNum(pmTotal);
 
       if (u.pmSeg > 0) {
-        lines.push(`${u.name} : ${paddedTotal} (ORD ${formatNum(u.pmOrd)} + SEG ${formatNum(u.pmSeg)})`);
+        lines.push(`${u.name}: ${paddedTotal} (ORD ${formatNum(u.pmOrd)} + SEG ${formatNum(u.pmSeg)})`);
       } else {
-        lines.push(`${u.name} : ${paddedTotal}`);
+        lines.push(`${u.name}: ${paddedTotal}`);
       }
     });
 
-    lines.push('__________________________________________');
+    lines.push('_________________________');
     lines.push('');
-    lines.push(`*TOTAL GERAL PM's: ${grandTotalEfetivo}*`);
-    lines.push('__________________________________________');
+    lines.push(`*TOTAL DE PM's: ${grandTotalEfetivo}*`);
+    lines.push('_________________________');
     lines.push('');
     lines.push(`*FALTAS: ${formatIncidentText(faltas)}*`);
     lines.push(`*ATRASOS: ${formatIncidentText(atrasos)}*`);
     lines.push(`*DISPENSAS: ${formatIncidentText(dispensas)}*`);
-    lines.push('------------------------------------------');
+    lines.push('_________________________');
     lines.push('');
-    lines.push('*BOM SERVIÇO A TODOS!*');
-    lines.push('*"QUE DEUS NOS PROTEJA EM MAIS UM DIA DE SERVIÇO"*');
+    lines.push('*Bom serviço a todos!*');
+    lines.push('*"Que Deus nos proteja em mais um dia de serviço"*');
+    lines.push('');
+    lines.push('*"BATALHÃO LESTE - CONQUISTAR E MANTER!"*');
 
     return lines.join('\n');
   };
