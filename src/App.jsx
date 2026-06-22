@@ -15,12 +15,17 @@ import {
   FileCheck,
   MapPin,
   TrendingUp,
-  Users,
   Plus,
   Upload,
   RefreshCw,
   AlertOctagon,
-  FileSpreadsheet
+  FileSpreadsheet,
+  CarFront,
+  Users,
+  ClipboardList,
+  IdCard,
+  CarFrontIcon,
+  Turntable
 } from 'lucide-react';
 import './App.css';
 import { POLICIAIS } from './data/policiais.js';
@@ -1133,8 +1138,8 @@ function App() {
                 <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest bg-blue-500/20 border border-blue-500/50 text-blue-400 rounded">PMAM</span>
                 <span className="px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest bg-amber-500/20 border border-amber-500/50 text-amber-400 rounded">CPA LESTE</span>
               </div>
-              <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight mt-1">MAPA DA FORÇA</h1>
-              <p className="text-xs md:text-sm text-slate-400 font-medium">Controle Operacional Integrado do Batalhão Leste</p>
+              <h1 className="text-2x1 md:text-3xl font-extrabold text-white tracking-tight mt-1">MONTAGEM DO MAPA DA FORÇA</h1>
+              <p className="text-xs md:text-sm text-slate-400 font-medium">Montagem do Mapa da Força do Batalhão Leste</p>
             </div>
           </div>
         </div>
@@ -1144,14 +1149,16 @@ function App() {
       <nav className="max-w-7xl mx-auto px-6 mt-6 flex border-b border-slate-200 w-full">
         <button
           onClick={() => setActiveTab('mapa')}
-          className={`px-6 py-3 font-bold text-sm flex items-center gap-2 border-b-2 transition-all cursor-pointer ${activeTab === 'mapa' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+          className={`px-6 py-3 font-bold text-sm flex items-center gap-2 border-b-2 transition-all 
+            cursor-pointer ${activeTab === 'mapa' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
         >
           <Shield className="w-4 h-4" />
           Mapa da Força
         </button>
         <button
           onClick={() => setActiveTab('ocorrencias')}
-          className={`px-6 py-3 font-bold text-sm flex items-center gap-2 border-b-2 transition-all cursor-pointer ${activeTab === 'ocorrencias' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
+          className={`px-6 py-3 font-bold text-sm flex items-center gap-2 border-b-2 transition-all cursor-pointer 
+            ${activeTab === 'ocorrencias' ? 'border-blue-600 text-blue-600' : 'border-transparent text-slate-400 hover:text-slate-600'}`}
         >
           <FileText className="w-4 h-4" />
           Resumo de Ocorrências
@@ -1163,7 +1170,7 @@ function App() {
         <section className="glass-panel p-6 rounded-2xl glow-accent">
           <div className="flex items-center gap-2 border-b border-slate-200 pb-3 mb-6">
             <FileCheck className="w-5 h-5 text-blue-600" />
-            <h2 className="text-lg font-bold text-slate-800 tracking-wide uppercase">Identificação Operacional</h2>
+            <h2 className="text-lg font-bold text-slate-800 tracking-wide uppercase">Dados do SA(CPO) LESTE</h2>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-5">
@@ -1196,7 +1203,7 @@ function App() {
             {/* Shift */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-slate-505 uppercase tracking-wider flex items-center gap-1.5">
-                <TrendingUp className="w-3.5 h-3.5 text-blue-600" /> Turno
+                <Turntable className="w-3.5 h-3.5 text-blue-600" /> Turno
               </label>
               <select
                 value={header.turno}
@@ -1205,7 +1212,6 @@ function App() {
               >
                 <option value="1º TURNO">1º TURNO</option>
                 <option value="2º TURNO">2º TURNO</option>
-                <option value="3º TURNO">3º TURNO</option>
                 <option value="OUTRO">OUTRO TURNO</option>
               </select>
             </div>
@@ -1231,7 +1237,7 @@ function App() {
             {/* CPO / SA Name */}
             <div className="flex flex-col gap-1.5 lg:col-span-2">
               <label className="text-xs font-semibold text-slate-505 uppercase tracking-wider flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5 text-blue-600" /> Supervisor Geral (SA Leste)
+                <User className="w-3.5 h-3.5 text-blue-600" /> Supervisor de ÁREA (SA Leste)
               </label>
               <input
                 type="text"
@@ -1245,7 +1251,7 @@ function App() {
             {/* CPO ID */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-slate-505 uppercase tracking-wider flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5 text-blue-600" /> ID / Matrícula
+                <IdCard className="w-3.5 h-3.5 text-blue-600" /> CI
               </label>
               <input
                 type="text"
@@ -1259,7 +1265,7 @@ function App() {
             {/* VTR SA */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-slate-505 uppercase tracking-wider flex items-center gap-1.5">
-                <Shield className="w-3.5 h-3.5 text-blue-600" /> VTR SA
+                <CarFrontIcon className="w-3.5 h-3.5 text-blue-600" /> VTR SA
               </label>
               <input
                 type="text"
@@ -1302,7 +1308,7 @@ function App() {
                   <span className="text-3xl font-black text-slate-800 mt-1 block">{formatNum(grandTotalViaturas)}</span>
                 </div>
                 <div className="p-3 rounded-lg bg-amber-500/10 text-amber-700">
-                  <TrendingUp className="w-6 h-6" />
+                  <CarFront className="w-6 h-6" />
                 </div>
               </div>
 
@@ -1341,7 +1347,7 @@ function App() {
             <section className="glass-panel rounded-2xl overflow-hidden shadow-sm border border-slate-200">
               <div className="p-6 border-b border-slate-200 flex justify-between items-center bg-slate-50">
                 <div className="flex items-center gap-2">
-                  <Shield className="w-5 h-5 text-blue-600" />
+                  <ClipboardList className="w-5 h-5 text-blue-600" />
                   <h2 className="text-lg font-bold text-slate-800 tracking-wide uppercase">MONTAGEM DO EFETIVO DO MAPA DA FORÇA - BATALHÃO LESTE</h2>
                 </div>
                 <span className="text-xs font-medium text-slate-505 italic">Preenchimento de Efetivos e Viaturas</span>
@@ -1374,7 +1380,18 @@ function App() {
                           className={`hover:bg-slate-50/70 transition-colors ${idx % 2 === 1 ? 'bg-slate-50/30' : 'bg-white'} ${unit.isHQ ? 'bg-blue-50/20 font-semibold' : ''}`}
                         >
                           <td className="py-2.5 px-4 font-bold text-slate-800 border-r border-slate-100">
-                            {unit.name}
+                            <div className="flex items-center justify-center gap-2">
+                              <img
+                                src={`/logos/${unit.id}.png`}
+                                alt={`Logo ${unit.name}`}
+                                className="w-6 h-6 object-contain"
+                                onError={(e) => {
+                                  e.target.onerror = null;
+                                  e.target.style.display = 'none';
+                                }}
+                              />
+                              <span>{unit.name}</span>
+                            </div>
                           </td>
 
                           <td className="py-2.5 px-4 border-r border-slate-100">
@@ -1625,6 +1642,15 @@ function App() {
                       {/* Unit Title Banner inside occurrences panel */}
                       <div className="bg-slate-50 px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200">
                         <div className="flex items-center gap-3">
+                          <img
+                            src={`/logos/${unit.id}.png`}
+                            alt={`Logo ${unit.name}`}
+                            className="w-6 h-6 object-contain"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.style.display = 'none';
+                            }}
+                          />
                           <span className="font-extrabold text-slate-800 text-sm tracking-wide">{unit.name}</span>
                           {activeCount === 0 ? (
                             <span className="px-2 py-0.5 text-[9px] font-bold text-slate-500 bg-slate-200 rounded uppercase">Sem ocorrência</span>
@@ -1665,7 +1691,7 @@ function App() {
                                 </button>
 
                                 {/* Form Inputs Row */}
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-5">
                                   {/* Natureza */}
                                   <div className="flex flex-col gap-1.5">
                                     <label className="text-[10px] font-bold text-slate-500 uppercase">Natureza / Descrição</label>
