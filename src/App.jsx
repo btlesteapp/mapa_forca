@@ -218,10 +218,10 @@ function App() {
     const saved = localStorage.getItem('mf_units');
     if (saved) {
       const parsed = JSON.parse(saved);
-      return parsed.map((item, index) => ({ 
-        ...INITIAL_UNITS[index], 
-        ...item, 
-        id: INITIAL_UNITS[index]?.id 
+      return parsed.map((item, index) => ({
+        ...INITIAL_UNITS[index],
+        ...item,
+        id: INITIAL_UNITS[index]?.id
       }));
     }
     return INITIAL_UNITS;
