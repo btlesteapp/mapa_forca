@@ -57,10 +57,18 @@ const INITIAL_UNITS = [
   { id: '30-cicom', name: '30ª CICOM', shortName: '30ª', isHQ: false, supervisor: '', supervisorId: '', vtrOrd: 0, vtrSeg: 0, pmOrd: 0, pmSeg: 0 }
 ];
 
+const getCurrentTurno = () => {
+  const hour = new Date().getHours();
+  if (hour >= 7 && hour < 19) {
+    return '1º TURNO';
+  }
+  return '2º TURNO';
+};
+
 const INITIAL_HEADER = {
   data: new Date().toISOString().split('T')[0],
   hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-  turno: '1º TURNO',
+  turno: getCurrentTurno(),
   customTurno: '',
   cpoNome: '',
   cpoId: '',
@@ -367,6 +375,10 @@ function App() {
         }
       } else if (cleanId === '') {
         newHeader.cpoNome = '';
+      } else if (cleanId.length === 5) {
+        showToast('CI do SA não encontrado! Digite uma CI válida.', 'error');
+        newHeader.cpoId = '';
+        newHeader.cpoNome = '';
       }
       return newHeader;
     });
@@ -395,10 +407,39 @@ function App() {
             }
           } else if (cleanId === '') {
             newUnit.supervisor = '';
+          } else if (cleanId.length === 5) {
+            showToast('CI do SSA não encontrado! Digite uma CI válida.', 'error');
+            newUnit.supervisorId = '';
+            newUnit.supervisor = '';
           }
         }
 
         return newUnit;
+      }
+      return u;
+    }));
+  };
+  // ERRO DE CI DO SSA NÃO ENCONTRADO
+  const handleCpoIdBlur = () => {
+    const cleanId = header.cpoId.toString().trim();
+    if (cleanId === '') return;
+    const p = POLICIAIS.find(x => x.rg.toString().trim() === cleanId);
+    if (!p) {
+      showToast('CI do SA não encontrado! Digite uma CI válida.', 'error');
+      setHeader(prev => ({ ...prev, cpoId: '', cpoNome: '' }));
+    }
+  };
+  // ERRO DE CI DO SSA NÃO ENCONTRADO
+  const handleUnitIdBlur = (unitId) => {
+    setUnits(prev => prev.map(u => {
+      if (u.id === unitId) {
+        const cleanId = (u.supervisorId || '').toString().trim();
+        if (cleanId === '') return u;
+        const p = POLICIAIS.find(x => x.rg.toString().trim() === cleanId);
+        if (!p) {
+          showToast('CI do SSA não encontrado! Digite uma CI válida.', 'error');
+          return { ...u, supervisorId: '', supervisor: '' };
+        }
       }
       return u;
     }));
@@ -441,7 +482,7 @@ function App() {
     setHeader({
       data: new Date().toISOString().split('T')[0],
       hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-      turno: '1º TURNO',
+      turno: getCurrentTurno(),
       customTurno: '',
       cpoNome: '',
       cpoId: '',
@@ -496,8 +537,11 @@ function App() {
   };
 
   const getTurnoText = () => {
-    if (header.turno === 'OUTRO') {
-      return (header.customTurno || 'OUTRO TURNO').toUpperCase();
+    if (header.turno === '1º TURNO') {
+      return '1º TURNO - 07h às 19h';
+    }
+    if (header.turno === '2º TURNO') {
+      return '2º TURNO - 19h às 07h';
     }
     return header.turno;
   };
@@ -696,7 +740,7 @@ function App() {
       doc.setFont("helvetica", "bold");
       doc.text("UNIDADE", colX.unidade + 2, tableYStart + 4.5);
       doc.text("SUPERVISOR (SSA)", colX.supervisor + 2, tableYStart + 4.5);
-      doc.text("ID", colX.id + 2, tableYStart + 4.5);
+      doc.text("CI", colX.id + 2, tableYStart + 4.5);
       doc.text("VTR ORD", colX.vtrOrd + 8.5, tableYStart + 4.5, { align: "center" });
       doc.text("VTR SEG", colX.vtrSeg + 8.5, tableYStart + 4.5, { align: "center" });
       doc.text("VTR Total", colX.vtrTotal + 8.5, tableYStart + 4.5, { align: "center" });
@@ -1198,7 +1242,7 @@ function App() {
             {/* Time */}
             <div className="flex flex-col gap-1.5">
               <label className="text-xs font-semibold text-slate-505 uppercase tracking-wider flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-blue-600" /> Hora
+                <Clock className="w-3.5 h-3.5 text-blue-600" /> Hora do Registro
               </label>
               <input
                 type="time"
@@ -1220,27 +1264,11 @@ function App() {
               >
                 <option value="1º TURNO">1º TURNO</option>
                 <option value="2º TURNO">2º TURNO</option>
-                <option value="OUTRO">OUTRO TURNO</option>
               </select>
             </div>
 
-            {/* Custom Shift */}
-            {header.turno === 'OUTRO' ? (
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-semibold text-slate-505 uppercase tracking-wider">
-                  Especificar Turno
-                </label>
-                <input
-                  type="text"
-                  placeholder="Ex: Turno Especial"
-                  value={header.customTurno}
-                  onChange={(e) => setHeader(prev => ({ ...prev, customTurno: e.target.value }))}
-                  className="glass-input px-3 py-2 text-sm rounded-lg placeholder-slate-400"
-                />
-              </div>
-            ) : (
-              <div className="hidden lg:block lg:col-span-0" />
-            )}
+            {/* Custom Shift placeholder removed */}
+            <div className="hidden lg:block lg:col-span-0" />
 
             {/* CPO / SA Name */}
             <div className="flex flex-col gap-1.5 lg:col-span-2">
@@ -1249,10 +1277,10 @@ function App() {
               </label>
               <input
                 type="text"
-                placeholder="Nome de Guerra (Ex: CAP ROGER)"
+                placeholder="Nome de Guerra (Autopreenchido)"
                 value={header.cpoNome}
-                onChange={(e) => setHeader(prev => ({ ...prev, cpoNome: e.target.value }))}
-                className="glass-input px-3 py-2 text-sm rounded-lg placeholder-slate-400"
+                readOnly
+                className="glass-input px-3 py-2 text-sm rounded-lg bg-slate-100 text-slate-600 font-bold border-slate-200 outline-none cursor-not-allowed"
               />
             </div>
 
@@ -1265,7 +1293,9 @@ function App() {
                 type="text"
                 placeholder="Ex: 20805"
                 value={header.cpoId}
-                onChange={(e) => handleCpoIdChange(e.target.value)}
+                onChange={(e) => handleCpoIdChange(e.target.value.replace(/\D/g, '').slice(0, 5))}
+                onBlur={handleCpoIdBlur}
+                maxLength={5}
                 className="glass-input px-3 py-2 text-sm rounded-lg placeholder-slate-400"
               />
             </div>
@@ -1408,7 +1438,7 @@ function App() {
                               placeholder={unit.isHQ ? "SA LESTE (CPO)" : "Nome de Guerra"}
                               value={unit.isHQ ? (header.cpoNome ? `${header.cpoNome.toUpperCase()} (CPO)` : 'SA LESTE (CPO)') : unit.supervisor}
                               onChange={(e) => handleUnitChange(unit.id, 'supervisor', e.target.value)}
-                              disabled={unit.isHQ}
+                              readOnly={unit.isHQ}
                               className={`w-full px-3 py-1.5 text-xs rounded border outline-none transition-all ${unit.isHQ ? 'bg-slate-100 text-slate-500 font-bold border-slate-200 cursor-not-allowed' : 'border-slate-350 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white text-slate-800'}`}
                             />
                           </td>
@@ -1416,9 +1446,11 @@ function App() {
                           <td className="py-2.5 px-4 border-r border-slate-100">
                             <input
                               type="text"
-                              placeholder="ID"
+                              placeholder="CI"
                               value={unit.isHQ ? header.cpoId : unit.supervisorId}
-                              onChange={(e) => handleUnitChange(unit.id, 'supervisorId', e.target.value)}
+                              onChange={(e) => handleUnitChange(unit.id, 'supervisorId', e.target.value.replace(/\D/g, '').slice(0, 5))}
+                              onBlur={() => !unit.isHQ && handleUnitIdBlur(unit.id)}
+                              maxLength={5}
                               disabled={unit.isHQ}
                               className={`w-full px-3 py-1.5 text-xs rounded border text-center outline-none transition-all ${unit.isHQ ? 'bg-slate-100 text-slate-500 font-bold border-slate-200 cursor-not-allowed' : 'border-slate-350 focus:border-blue-500 focus:ring-1 focus:ring-blue-500 bg-white text-slate-800'}`}
                             />
@@ -1491,18 +1523,21 @@ function App() {
                           <label className="text-[10px] font-bold text-slate-505 uppercase">Supervisor</label>
                           <input
                             type="text"
+                            placeholder={unit.isHQ ? "SA LESTE (CPO)" : "Nome de Guerra"}
                             value={unit.isHQ ? (header.cpoNome ? `${header.cpoNome.toUpperCase()} (CPO)` : 'SA LESTE (CPO)') : unit.supervisor}
                             onChange={(e) => handleUnitChange(unit.id, 'supervisor', e.target.value)}
-                            disabled={unit.isHQ}
+                            readOnly={unit.isHQ}
                             className={`px-3 py-1.5 text-xs rounded border outline-none ${unit.isHQ ? 'bg-slate-100 text-slate-505 font-bold border-slate-200 cursor-not-allowed' : 'border-slate-350 focus:border-blue-500 bg-white text-slate-800'}`}
                           />
                         </div>
                         <div className="flex flex-col gap-1">
-                          <label className="text-[10px] font-bold text-slate-505 uppercase">ID / Matrícula</label>
+                          <label className="text-[10px] font-bold text-slate-505 uppercase">CI / Matrícula</label>
                           <input
                             type="text"
                             value={unit.isHQ ? header.cpoId : unit.supervisorId}
-                            onChange={(e) => handleUnitChange(unit.id, 'supervisorId', e.target.value)}
+                            onChange={(e) => handleUnitChange(unit.id, 'supervisorId', e.target.value.replace(/\D/g, '').slice(0, 5))}
+                            onBlur={() => !unit.isHQ && handleUnitIdBlur(unit.id)}
+                            maxLength={5}
                             disabled={unit.isHQ}
                             className={`px-3 py-1.5 text-xs rounded border text-center outline-none ${unit.isHQ ? 'bg-slate-100 text-slate-505 border-slate-200 cursor-not-allowed' : 'border-slate-350 focus:border-blue-500 bg-white text-slate-800'}`}
                           />
