@@ -377,7 +377,6 @@ function App() {
         newHeader.cpoNome = '';
       } else if (cleanId.length === 5) {
         showToast('CI do SA não encontrado! Digite uma CI válida.', 'error');
-        newHeader.cpoId = '';
         newHeader.cpoNome = '';
       }
       return newHeader;
@@ -409,7 +408,6 @@ function App() {
             newUnit.supervisor = '';
           } else if (cleanId.length === 5) {
             showToast('CI do SSA não encontrado! Digite uma CI válida.', 'error');
-            newUnit.supervisorId = '';
             newUnit.supervisor = '';
           }
         }
