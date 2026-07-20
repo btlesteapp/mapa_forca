@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import {
   Copy, Plus, Trash2, CarFront, Users, User, Shield, Calendar, Clock, Phone, IdCard,
-  FileCheck, Turntable, CarFrontIcon, AlertTriangle, FileText, Download
+  FileCheck, Turntable, CarFrontIcon, AlertTriangle, FileText, Download, CloudUpload
 } from 'lucide-react';
+import { supabase } from './supabaseClient.js';
 import { POLICIAIS } from './data/policiais.js';
 import {
   IncidentListField,
@@ -359,6 +360,32 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
     setHeader({ ...INITIAL_HEADER, cicomName: activeCicom, telefone: CICOM_PHONES[activeCicom] });
     setShowClearConfirm(false);
     if (showToast) showToast('Formulário limpo com sucesso.', 'info');
+  };
+
+  const handleSaveToSupabase = async () => {
+    try {
+      if (showToast) showToast('Salvando no servidor...', 'info');
+      
+      const payload = {
+        cicom_name: header.cicomName,
+        data_registro: header.data,
+        turno: header.turno,
+        header_payload: header,
+        mapa_payload: data,
+        ocorrencias_payload: occurrences[header.cicomName] || []
+      };
+
+      const { error } = await supabase
+        .from('mapas_diarios')
+        .upsert(payload, { onConflict: 'cicom_name,data_registro,turno' });
+
+      if (error) throw error;
+      
+      if (showToast) showToast('Dados salvos no servidor com sucesso!', 'success');
+    } catch (err) {
+      console.error('Erro Supabase:', err);
+      if (showToast) showToast('Erro ao salvar no servidor.', 'error');
+    }
   };
 
   // --- Handlers for OCCURRENCES ---
@@ -952,6 +979,14 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
 
           {/* Tab 1 Actions Panel */}
           <section className="flex flex-col sm:flex-row flex-wrap gap-4 items-center justify-center p-6 rounded-2xl bg-slate-100 border border-slate-200 glass-panel mt-4">
+            <button
+              onClick={handleSaveToSupabase}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 font-bold uppercase tracking-wider text-xs rounded-xl bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
+            >
+              <CloudUpload className="w-4 h-4" />
+              Salvar no Servidor
+            </button>
+
             <button
               onClick={handleCopyToClipboard}
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 font-bold uppercase tracking-wider text-xs rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all cursor-pointer"

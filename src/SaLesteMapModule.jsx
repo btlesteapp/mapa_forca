@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import {
-  Shield, Calendar, Clock, User, Phone, FileText, Download, Copy,
-  Trash2, CheckCircle2, AlertTriangle, MapPin, ClipboardList, IdCard, CarFrontIcon,
-  CarFront, Users, FileCheck, Turntable, Plus
+  Copy, Plus, Trash2, CarFront, Users, User, Shield, Calendar, Clock, Phone, IdCard,
+  FileCheck, Turntable, CarFrontIcon, AlertTriangle, FileText, Download, CloudDownload
 } from 'lucide-react';
+import { supabase } from './supabaseClient.js';
 import { POLICIAIS } from './data/policiais.js';
 import {
   OCCURRENCE_UNITS,
@@ -186,7 +186,21 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
     }));
   };
 
-  const handleSyncFromCicom = () => {
+  const handleSyncFromCicom = async () => {
+    if (showToast) showToast('Sincronizando do servidor...', 'info');
+
+    const { data: serverMapas, error } = await supabase
+      .from('mapas_diarios')
+      .select('*')
+      .eq('data_registro', header.data)
+      .eq('turno', header.turno);
+
+    if (error) {
+      console.error(error);
+      if (showToast) showToast('Erro ao sincronizar.', 'error');
+      return;
+    }
+
     const cicomMap = {
       '4-cicom': '4ª CICOM',
       '9-cicom': '9ª CICOM',
@@ -202,61 +216,63 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
       if (u.isHQ || !cicomMap[u.id]) return u;
 
       const cicomName = cicomMap[u.id];
-      const headerSaved = localStorage.getItem(`mf_header_cicom_${cicomName}`);
-      const dataSaved = localStorage.getItem(`mf_cicom_${cicomName}`);
+      const serverMapa = serverMapas?.find(m => m.cicom_name === cicomName);
 
       let newUnit = { ...u };
 
-      if (headerSaved) {
-        try {
-          const h = JSON.parse(headerSaved);
-          if (h.cpoId) {
-            const cleanId = h.cpoId.toString().trim();
-            newUnit.supervisorId = cleanId;
-            const p = POLICIAIS.find(x => x.rg.toString().trim() === cleanId);
-            if (p) {
-              newUnit.supervisor = `${p.postoGrad} ${p.nomeGuerra}`;
+      if (serverMapa) {
+        const h = serverMapa.header_payload || {};
+        const d = serverMapa.mapa_payload || {};
+
+        if (h.cpoId) {
+          const cleanId = h.cpoId.toString().trim();
+          newUnit.supervisorId = cleanId;
+          const p = POLICIAIS.find(x => x.rg.toString().trim() === cleanId);
+          if (p) {
+            newUnit.supervisor = `${p.postoGrad} ${p.nomeGuerra}`;
+          } else {
+            newUnit.supervisor = h.cpoNome || '';
+          }
+        }
+
+        if (d.vtrs && Array.isArray(d.vtrs)) {
+          let vtrOrdCount = 0;
+          let vtrSegCount = 0;
+          let pmOrdCount = 0;
+          let pmSegCount = 0;
+
+          d.vtrs.forEach(vtr => {
+            const isSeg = vtr.tipo === 'SEG';
+            
+            if (isSeg) {
+              vtrSegCount++;
+              if (vtr.cmt?.nome) pmSegCount++;
+              if (vtr.mot?.nome) pmSegCount++;
             } else {
-              newUnit.supervisor = h.cpoNome || '';
+              vtrOrdCount++;
+              if (vtr.cmt?.nome) pmOrdCount++;
+              if (vtr.mot?.nome) pmOrdCount++;
             }
-          }
-        } catch (e) { console.error(e); }
-      }
+          });
 
-      if (dataSaved) {
-        try {
-          const d = JSON.parse(dataSaved);
-          if (d.vtrs && Array.isArray(d.vtrs)) {
-            let vtrOrdCount = 0;
-            let vtrSegCount = 0;
-            let pmOrdCount = 0;
-            let pmSegCount = 0;
+          newUnit.vtrOrd = vtrOrdCount;
+          newUnit.vtrSeg = vtrSegCount;
+          newUnit.pmOrd = pmOrdCount;
+          newUnit.pmSeg = pmSegCount;
+        }
 
-            d.vtrs.forEach(vtr => {
-              const isSeg = vtr.tipo === 'SEG';
-              
-              if (isSeg) {
-                vtrSegCount++;
-                if (vtr.cmt?.nome) pmSegCount++;
-                if (vtr.mot?.nome) pmSegCount++;
-              } else {
-                vtrOrdCount++;
-                if (vtr.cmt?.nome) pmOrdCount++;
-                if (vtr.mot?.nome) pmOrdCount++;
-              }
-            });
-
-            newUnit.vtrOrd = vtrOrdCount;
-            newUnit.vtrSeg = vtrSegCount;
-            newUnit.pmOrd = pmOrdCount;
-            newUnit.pmSeg = pmSegCount;
-          }
-        } catch (e) { console.error(e); }
+        const vtrsNaoMontadas = parseInt(d.resumo?.totalVtrsNaoMontadas) || 0;
+        newUnit.vtrBaixada = vtrsNaoMontadas;
+        
+        const totalAdmin = parseInt(d.servicoInterno?.totalAdmin) || 0;
+        const permanencia = parseInt(d.servicoInterno?.permanenciaReserva) || 0;
+        newUnit.adm = totalAdmin + permanencia;
       }
 
       return newUnit;
     }));
-    showToast('Dados sincronizados com as CICOMs locais com sucesso!', 'success');
+
+    if (showToast) showToast('Sincronizado com o servidor!', 'success');
   };
 
   const handleAddIncidentItem = (category) => {
@@ -1107,10 +1123,10 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
               <div className="flex items-center gap-3">
                 <button
                   onClick={handleSyncFromCicom}
-                  className="px-3 py-1.5 bg-blue-100 hover:bg-blue-200 text-blue-700 text-xs font-bold rounded-md shadow-sm transition-colors border border-blue-200 cursor-pointer"
-                  title="Puxar dados preenchidos pelas CICOMs localmente"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 font-bold uppercase tracking-wider text-xs rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
                 >
-                  Sincronizar Dados (CICOMs)
+                  <CloudDownload className="w-4 h-4" />
+                  Sincronizar Dados (Nuvem)
                 </button>
                 <span className="text-xs font-medium text-slate-505 italic hidden sm:block">Preenchimento de Efetivos e Viaturas</span>
               </div>
