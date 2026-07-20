@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import {
   Copy, Plus, Trash2, CarFront, Users, User, Shield, Calendar, Clock, Phone, IdCard,
-  FileCheck, Turntable, CarFrontIcon, AlertTriangle, FileText, Download
+  FileCheck, Turntable, CarFrontIcon, AlertTriangle, FileText, Download, MapPin
 } from 'lucide-react';
 import { supabase } from './supabaseClient.js';
 import { POLICIAIS } from './data/policiais.js';
