@@ -1014,14 +1014,6 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
               Baixar Relatório TXT
             </button>
 
-            <button
-              onClick={handleGeneratePDF}
-              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 font-bold uppercase tracking-wider text-xs rounded-xl bg-amber-500 hover:bg-amber-600 text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
-            >
-              <FileText className="w-4 h-4" />
-              Gerar Relatório PDF
-            </button>
-
             <div className="relative w-full sm:w-auto">
               {!showClearConfirm ? (
                 <button
