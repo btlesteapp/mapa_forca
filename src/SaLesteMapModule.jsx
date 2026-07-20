@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import {
   Copy, Plus, Trash2, CarFront, Users, User, Shield, Calendar, Clock, Phone, IdCard,
-  FileCheck, Turntable, CarFrontIcon, AlertTriangle, FileText, Download, CloudDownload
+  FileCheck, Turntable, CarFrontIcon, AlertTriangle, FileText, Download
 } from 'lucide-react';
 import { supabase } from './supabaseClient.js';
 import { POLICIAIS } from './data/policiais.js';
@@ -1125,7 +1125,7 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
                   onClick={handleSyncFromCicom}
                   className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 font-bold uppercase tracking-wider text-xs rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
                 >
-                  <CloudDownload className="w-4 h-4" />
+                  <Download className="w-4 h-4" />
                   Sincronizar Dados (Nuvem)
                 </button>
                 <span className="text-xs font-medium text-slate-505 italic hidden sm:block">Preenchimento de Efetivos e Viaturas</span>
