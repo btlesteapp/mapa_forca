@@ -793,7 +793,7 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
       </div >
 
       {activeTab === 'cicom' && (
-        <div className="flex flex-col gap-6 animate-fade-in max-w-5xl mx-auto w-full pb-8">
+        <div className="flex flex-col gap-6 animate-fade-in w-full pb-8">
           <section className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
             <div className="bg-slate-700 px-6 py-4 flex justify-between items-center">
               <h2 className="text-white font-bold tracking-wide flex items-center gap-2">
@@ -971,7 +971,7 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
             <section className="glass-panel p-6 rounded-2xl glow-accent">
               <div className="flex items-center gap-2 border-b border-slate-200 pb-3 mb-6">
                 <AlertTriangle className="w-5 h-5 text-amber-500 animate-pulse" />
-                <h2 className="text-lg font-bold text-slate-800 tracking-wide uppercase">Alterações / Ocorrências de Serviço</h2>
+                <h2 className="text-lg font-bold text-slate- tracking-wide uppercase">Alterações / Ocorrências de Serviço</h2>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <IncidentListField
