@@ -285,6 +285,15 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
         const totalAdmin = parseInt(d.servicoInterno?.totalAdmin) || 0;
         const permanencia = parseInt(d.servicoInterno?.permanenciaReserva) || 0;
         newUnit.adm = totalAdmin + permanencia;
+      } else {
+        newUnit.supervisorId = '';
+        newUnit.supervisor = '';
+        newUnit.vtrOrd = 0;
+        newUnit.vtrSeg = 0;
+        newUnit.pmOrd = 0;
+        newUnit.pmSeg = 0;
+        newUnit.vtrBaixada = 0;
+        newUnit.adm = 0;
       }
 
       return newUnit;
