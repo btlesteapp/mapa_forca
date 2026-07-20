@@ -1,0 +1,18 @@
+{
+  "short_name": "Mapa Força",
+  "name": "Mapa da Força - Batalhão Leste",
+  "description": "Gerador de Relatórios de Efetivo e Viaturas do CPA Leste",
+  "start_url": ".",
+  "background_color": "#0a0f1d",
+  "theme_color": "#0f172a",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "logo.png",
+      "type": "image/png",
+      "sizes": "512x512",
+      "purpose": "any maskable"
+    }
+  ]
+}
