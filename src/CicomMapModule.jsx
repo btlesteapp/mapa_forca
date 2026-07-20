@@ -856,14 +856,14 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
                       <div className="flex flex-col gap-2">
                         <input
                           type="text"
-                          placeholder="Nome e Patente"
+                          placeholder="Graduação/Nome"
                           value={vtr.cmt.nome}
                           onChange={e => handleVtrMemberUpdate(idx, 'cmt', 'nome', e.target.value)}
                           className="glass-input px-3 py-2 text-sm rounded-lg bg-white"
                         />
                         <input
                           type="text"
-                          placeholder="Matrícula"
+                          placeholder="Digite a CI aqui"
                           value={vtr.cmt.id}
                           onChange={e => handleVtrMemberUpdate(idx, 'cmt', 'id', e.target.value)}
                           className="glass-input px-3 py-2 text-sm rounded-lg bg-white"
@@ -876,14 +876,14 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
                       <div className="flex flex-col gap-2">
                         <input
                           type="text"
-                          placeholder="Nome e Patente"
+                          placeholder="Graduação/Nome"
                           value={vtr.mot.nome}
                           onChange={e => handleVtrMemberUpdate(idx, 'mot', 'nome', e.target.value)}
                           className="glass-input px-3 py-2 text-sm rounded-lg bg-white"
                         />
                         <input
                           type="text"
-                          placeholder="Matrícula"
+                          placeholder="Digite a CI aqui"
                           value={vtr.mot.id}
                           onChange={e => handleVtrMemberUpdate(idx, 'mot', 'id', e.target.value)}
                           className="glass-input px-3 py-2 text-sm rounded-lg bg-white"

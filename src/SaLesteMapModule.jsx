@@ -261,7 +261,7 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
 
           d.vtrs.forEach(vtr => {
             const isSeg = vtr.tipo === 'SEG';
-            
+
             if (isSeg) {
               vtrSegCount++;
               if (vtr.cmt?.nome) pmSegCount++;
@@ -281,7 +281,7 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
 
         const vtrsNaoMontadas = parseInt(d.resumo?.totalVtrsNaoMontadas) || 0;
         newUnit.vtrBaixada = vtrsNaoMontadas;
-        
+
         const totalAdmin = parseInt(d.servicoInterno?.totalAdmin) || 0;
         const permanencia = parseInt(d.servicoInterno?.permanenciaReserva) || 0;
         newUnit.adm = totalAdmin + permanencia;
@@ -783,7 +783,7 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
     lines.push('');
     lines.push('*BOA FOLGA E BOM SERVIÇO A TODOS*');
     lines.push('');
-    lines.push('*BATALHÃO LESTE: CONQUISTAR E MANTER*');
+    lines.push('*"BATALHÃO LESTE - CONQUISTAR E MANTER!"*');
 
     return lines.join('\n');
   };
