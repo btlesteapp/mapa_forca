@@ -37,9 +37,9 @@ const INITIAL_CICOM_STATE = {
     totalAdmin: '',
     permanenciaReserva: ''
   },
-  faltas: [],
-  atrasos: [],
-  dispensas: []
+  faltas: ['S/A'],
+  atrasos: ['S/A'],
+  dispensas: ['S/A']
 };
 
 export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
@@ -120,10 +120,22 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
   };
 
   // MAPA STATE
+  const patchData = (parsedData) => {
+    return {
+      ...parsedData,
+      faltas: parsedData.faltas?.length > 0 ? parsedData.faltas : ['S/A'],
+      atrasos: parsedData.atrasos?.length > 0 ? parsedData.atrasos : ['S/A'],
+      dispensas: parsedData.dispensas?.length > 0 ? parsedData.dispensas : ['S/A']
+    };
+  };
+
   const [data, setData] = useState(() => {
     try {
       const saved = localStorage.getItem(`mf_cicom_${localStorage.getItem('mf_active_cicom') || '4ª CICOM'}`);
-      return saved ? JSON.parse(saved) : { ...INITIAL_CICOM_STATE, vtrs: CICOM_DATA[localStorage.getItem('mf_active_cicom') || '4ª CICOM'] || [] };
+      if (saved) {
+        return patchData(JSON.parse(saved));
+      }
+      return { ...INITIAL_CICOM_STATE, vtrs: CICOM_DATA[localStorage.getItem('mf_active_cicom') || '4ª CICOM'] || [] };
     } catch (e) {
       return { ...INITIAL_CICOM_STATE, vtrs: CICOM_DATA[localStorage.getItem('mf_active_cicom') || '4ª CICOM'] || [] };
     }
@@ -133,7 +145,7 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
     const saved = localStorage.getItem(`mf_cicom_${activeCicom}`);
     if (saved) {
       try {
-        setData(JSON.parse(saved));
+        setData(patchData(JSON.parse(saved)));
       } catch (e) {
         setData({ ...INITIAL_CICOM_STATE, vtrs: CICOM_DATA[activeCicom] || [] });
       }
