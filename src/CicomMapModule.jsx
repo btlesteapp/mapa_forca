@@ -956,32 +956,32 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
           </div>
 
           <div className="col-span-1 md:col-span-2 flex flex-col gap-6">
-            <section className="bg-slate-50 rounded-2xl shadow-sm border border-slate-200 p-6 flex flex-col gap-6">
-              <h3 className="font-bold text-slate-700 uppercase tracking-wide flex items-center gap-2 border-b border-slate-200 pb-3">
-                <Users className="w-5 h-5 text-blue-600" />
-                Alterações do Serviço
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <section className="glass-panel p-6 rounded-2xl glow-accent">
+              <div className="flex items-center gap-2 border-b border-slate-200 pb-3 mb-6">
+                <AlertTriangle className="w-5 h-5 text-amber-500 animate-pulse" />
+                <h2 className="text-lg font-bold text-slate-800 tracking-wide uppercase">Alterações / Ocorrências de Serviço</h2>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <IncidentListField
-                  label="Faltas"
+                  label="Faltas de Efetivo (Ex: Nome/ID)"
                   items={data.faltas}
-                  placeholder="Ex: CB PM SILVA"
+                  placeholder="EX: SD STIVE FULANO (123456) - OPM"
                   onAdd={() => handleAddIncidentItem('faltas')}
                   onChange={(idx, val) => handleIncidentItemChange('faltas', idx, val)}
                   onRemove={(idx) => handleRemoveIncidentItem('faltas', idx)}
                 />
                 <IncidentListField
-                  label="Atrasos"
+                  label="Atrasos de Serviço"
                   items={data.atrasos}
-                  placeholder="Ex: SGT PM JOSÉ"
+                  placeholder="EX: SD STIVE FULANO (123456) - OPM"
                   onAdd={() => handleAddIncidentItem('atrasos')}
                   onChange={(idx, val) => handleIncidentItemChange('atrasos', idx, val)}
                   onRemove={(idx) => handleRemoveIncidentItem('atrasos', idx)}
                 />
                 <IncidentListField
-                  label="Dispensas"
+                  label="Dispensas do Turno"
                   items={data.dispensas}
-                  placeholder="Ex: SD PM SOUZA (LTS)"
+                  placeholder="EX: SD STIVE FULANO (123456) - OPM"
                   onAdd={() => handleAddIncidentItem('dispensas')}
                   onChange={(idx, val) => handleIncidentItemChange('dispensas', idx, val)}
                   onRemove={(idx) => handleRemoveIncidentItem('dispensas', idx)}
