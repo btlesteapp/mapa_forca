@@ -187,7 +187,7 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
       if (field === 'id') {
         const cleanId = value.toString().replace(/\D/g, '').slice(0, 5);
         member.id = cleanId; // force only numbers and 5 max
-        
+
         if (cleanId.length > 0) {
           const p = POLICIAIS.find(x => x.rg.toString().trim() === cleanId);
           if (p) {
@@ -352,11 +352,11 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
       if (showToast) showToast('Gerando PDF...', 'info');
       const doc = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const text = generateReportText();
-      
+
       doc.setFontSize(10);
       const splitText = doc.splitTextToSize(text, 180);
       doc.text(splitText, 15, 15);
-      
+
       const fileDate = header.data ? header.data.replace(/-/g, '_') : 'data';
       doc.save(`MAPA_${header.cicomName}_${fileDate}.pdf`);
       if (showToast) showToast('PDF exportado com sucesso!');
@@ -376,7 +376,7 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
   const handleSaveToSupabase = async () => {
     try {
       if (showToast) showToast('Salvando no servidor...', 'info');
-      
+
       const payload = {
         cicom_name: header.cicomName,
         data_registro: header.data,
@@ -391,7 +391,7 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
         .upsert(payload, { onConflict: 'cicom_name,data_registro,turno' });
 
       if (error) throw error;
-      
+
       if (showToast) showToast('Dados salvos no servidor com sucesso!', 'success');
     } catch (err) {
       console.error('Erro Supabase:', err);
@@ -469,10 +469,12 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
         lines.push(formatSingleOccurrence(o));
       });
     }
-
+    //MUDANÇAS NO FINAL DO RELATORIO
     lines.push('');
     lines.push('*BOA FOLGA E BOM SERVIÇO A TODOS*');
-    lines.push(`*${header.cicomName.toUpperCase()}: CONQUISTAR E MANTER*`);
+    lines.push(`*${header.cicomName.toUpperCase()}*`);
+    lines.push('');
+    lines.push('*BATALHÃO LESTE - CONQUISTAR E MANTER*');
 
     return lines.join('\n');
   };
@@ -1058,7 +1060,7 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
                   </div>
                   <div>
                     <h2 className="text-xl font-black text-slate-800 tracking-tight uppercase">Resumo de Ocorrências</h2>
-                    <p className="text-xs font-semibold text-slate-500 mt-1">Lançamento de ocorrências de relevo para a CICOM selecionada.</p>
+                    <p className="text-xs font-semibold text-slate-500 mt-1">Lançamento de ocorrências para a CICOM selecionada.</p>
                   </div>
                 </div>
                 <div className="px-4 py-2 bg-slate-100 rounded-lg border border-slate-200 text-sm font-bold text-slate-600">
