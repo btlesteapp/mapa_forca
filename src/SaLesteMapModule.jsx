@@ -121,8 +121,13 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
 
   // Resumo de Ocorrencias State
   const [occurrences, setOccurrences] = useState(() => {
-    const saved = localStorage.getItem('mf_occurrences_sa');
-    if (saved) return JSON.parse(saved);
+    try {
+      const saved = localStorage.getItem('mf_occurrences_sa');
+      if (saved && saved !== 'null' && saved !== 'undefined') {
+        const parsed = JSON.parse(saved);
+        if (parsed && typeof parsed === 'object') return parsed;
+      }
+    } catch (e) { }
     const initial = {};
     OCCURRENCE_UNITS.forEach(u => {
       initial[u.id] = [];
