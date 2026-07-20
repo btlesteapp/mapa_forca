@@ -22,8 +22,12 @@ import {
 
 export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
   const [header, setHeader] = useState(() => {
-    const saved = localStorage.getItem('mf_header_sa');
-    return saved ? JSON.parse(saved) : { ...INITIAL_HEADER, telefone: '(92) 98842-2842' };
+    try {
+      const saved = localStorage.getItem('mf_header_sa');
+      return saved ? JSON.parse(saved) : { ...INITIAL_HEADER, telefone: '(92) 98842-2842' };
+    } catch (e) {
+      return { ...INITIAL_HEADER, telefone: '(92) 98842-2842' };
+    }
   });
 
   useEffect(() => {
@@ -79,32 +83,40 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
 
   // Mapa da Força Table State
   const [units, setUnits] = useState(() => {
-    const saved = localStorage.getItem('mf_units_sa');
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      return parsed.map((item, index) => ({
-        ...INITIAL_UNITS[index],
-        ...item,
-        id: INITIAL_UNITS[index]?.id
-      }));
-    }
+    try {
+      const saved = localStorage.getItem('mf_units_sa');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        return parsed.map((item, index) => ({
+          ...INITIAL_UNITS[index],
+          ...item,
+          id: INITIAL_UNITS[index]?.id
+        }));
+      }
+    } catch (e) { }
     return INITIAL_UNITS;
   });
 
   // Mapa da Força Alterations states
   const [faltas, setFaltas] = useState(() => {
-    const saved = localStorage.getItem('mf_faltas_sa');
-    return saved ? JSON.parse(saved) : ['S/A'];
+    try {
+      const saved = localStorage.getItem('mf_faltas_sa');
+      return saved ? JSON.parse(saved) : ['S/A'];
+    } catch (e) { return ['S/A']; }
   });
 
   const [atrasos, setAtrasos] = useState(() => {
-    const saved = localStorage.getItem('mf_atrasos_sa');
-    return saved ? JSON.parse(saved) : ['S/A'];
+    try {
+      const saved = localStorage.getItem('mf_atrasos_sa');
+      return saved ? JSON.parse(saved) : ['S/A'];
+    } catch (e) { return ['S/A']; }
   });
 
   const [dispensas, setDispensas] = useState(() => {
-    const saved = localStorage.getItem('mf_dispensas_sa');
-    return saved ? JSON.parse(saved) : ['S/A'];
+    try {
+      const saved = localStorage.getItem('mf_dispensas_sa');
+      return saved ? JSON.parse(saved) : ['S/A'];
+    } catch (e) { return ['S/A']; }
   });
 
   // Resumo de Ocorrencias State

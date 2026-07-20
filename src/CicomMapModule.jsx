@@ -50,8 +50,12 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
 
   // HEADER STATE
   const [header, setHeader] = useState(() => {
-    const saved = localStorage.getItem(`mf_header_cicom_${localStorage.getItem('mf_active_cicom') || '4ª CICOM'}`);
-    return saved ? JSON.parse(saved) : { ...INITIAL_HEADER, cicomName: localStorage.getItem('mf_active_cicom') || '4ª CICOM' };
+    try {
+      const saved = localStorage.getItem(`mf_header_cicom_${localStorage.getItem('mf_active_cicom') || '4ª CICOM'}`);
+      return saved ? JSON.parse(saved) : { ...INITIAL_HEADER, cicomName: localStorage.getItem('mf_active_cicom') || '4ª CICOM' };
+    } catch (e) {
+      return { ...INITIAL_HEADER, cicomName: localStorage.getItem('mf_active_cicom') || '4ª CICOM' };
+    }
   });
 
   useEffect(() => {
@@ -117,14 +121,22 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
 
   // MAPA STATE
   const [data, setData] = useState(() => {
-    const saved = localStorage.getItem(`mf_cicom_${localStorage.getItem('mf_active_cicom') || '4ª CICOM'}`);
-    return saved ? JSON.parse(saved) : { ...INITIAL_CICOM_STATE, vtrs: CICOM_DATA[localStorage.getItem('mf_active_cicom') || '4ª CICOM'] || [] };
+    try {
+      const saved = localStorage.getItem(`mf_cicom_${localStorage.getItem('mf_active_cicom') || '4ª CICOM'}`);
+      return saved ? JSON.parse(saved) : { ...INITIAL_CICOM_STATE, vtrs: CICOM_DATA[localStorage.getItem('mf_active_cicom') || '4ª CICOM'] || [] };
+    } catch (e) {
+      return { ...INITIAL_CICOM_STATE, vtrs: CICOM_DATA[localStorage.getItem('mf_active_cicom') || '4ª CICOM'] || [] };
+    }
   });
 
   useEffect(() => {
     const saved = localStorage.getItem(`mf_cicom_${activeCicom}`);
     if (saved) {
-      setData(JSON.parse(saved));
+      try {
+        setData(JSON.parse(saved));
+      } catch (e) {
+        setData({ ...INITIAL_CICOM_STATE, vtrs: CICOM_DATA[activeCicom] || [] });
+      }
     } else {
       setData({ ...INITIAL_CICOM_STATE, vtrs: CICOM_DATA[activeCicom] || [] });
     }
@@ -136,13 +148,12 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
 
   // OCCURRENCES STATE
   const [occurrences, setOccurrences] = useState(() => {
-    const saved = localStorage.getItem('mf_occurrences_cicom');
-    if (saved) return JSON.parse(saved);
-    const initial = {};
-    Object.keys(CICOM_PHONES).forEach(cicom => {
-      initial[cicom] = [];
-    });
-    return initial;
+    try {
+      const saved = localStorage.getItem('mf_occurrences_cicom');
+      return saved ? JSON.parse(saved) : { ...INITIAL_OCCURRENCES };
+    } catch (e) {
+      return { ...INITIAL_OCCURRENCES };
+    }
   });
 
   useEffect(() => {
