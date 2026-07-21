@@ -121,8 +121,31 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl, onNaviga
 
   // MAPA STATE
   const patchData = (parsedData) => {
+    const patchedVtrs = (parsedData.vtrs || []).map(vtr => {
+      if (vtr.pms) return vtr;
+      
+      const pms = [];
+      if (vtr.cmt) {
+        pms.push({ funcao: 'CMT', nome: vtr.cmt.nome || '', id: vtr.cmt.id || '' });
+      } else {
+        pms.push({ funcao: 'CMT', nome: '', id: '' });
+      }
+      
+      if (vtr.mot) {
+        pms.push({ funcao: 'MOT', nome: vtr.mot.nome || '', id: vtr.mot.id || '' });
+      } else {
+        pms.push({ funcao: 'MOT', nome: '', id: '' });
+      }
+      
+      const newVtr = { ...vtr, pms };
+      delete newVtr.cmt;
+      delete newVtr.mot;
+      return newVtr;
+    });
+
     return {
       ...parsedData,
+      vtrs: patchedVtrs,
       faltas: parsedData.faltas?.length > 0 ? parsedData.faltas : ['S/A'],
       atrasos: parsedData.atrasos?.length > 0 ? parsedData.atrasos : ['S/A'],
       dispensas: parsedData.dispensas?.length > 0 ? parsedData.dispensas : ['S/A']
@@ -191,14 +214,15 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl, onNaviga
     });
   };
 
-  const handleVtrMemberUpdate = (vtrIndex, role, field, value) => {
+  const handleVtrPmUpdate = (vtrIndex, pmIndex, field, value) => {
     setData(prev => {
       const newVtrs = [...prev.vtrs];
-      const member = { ...newVtrs[vtrIndex][role], [field]: value };
+      const newPms = [...newVtrs[vtrIndex].pms];
+      const member = { ...newPms[pmIndex], [field]: value };
 
       if (field === 'id') {
         const cleanId = value.toString().replace(/\D/g, '').slice(0, 5);
-        member.id = cleanId; // force only numbers and 5 max
+        member.id = cleanId;
 
         if (cleanId.length > 0) {
           const p = POLICIAIS.find(x => x.rg.toString().trim() === cleanId);
@@ -210,7 +234,26 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl, onNaviga
         }
       }
 
-      newVtrs[vtrIndex][role] = member;
+      newPms[pmIndex] = member;
+      newVtrs[vtrIndex] = { ...newVtrs[vtrIndex], pms: newPms };
+      return { ...prev, vtrs: newVtrs };
+    });
+  };
+
+  const addPmToVtr = (vtrIndex) => {
+    setData(prev => {
+      const newVtrs = [...prev.vtrs];
+      const newPms = [...newVtrs[vtrIndex].pms, { funcao: 'PAT', nome: '', id: '' }];
+      newVtrs[vtrIndex] = { ...newVtrs[vtrIndex], pms: newPms };
+      return { ...prev, vtrs: newVtrs };
+    });
+  };
+
+  const removePmFromVtr = (vtrIndex, pmIndex) => {
+    setData(prev => {
+      const newVtrs = [...prev.vtrs];
+      const newPms = newVtrs[vtrIndex].pms.filter((_, i) => i !== pmIndex);
+      newVtrs[vtrIndex] = { ...newVtrs[vtrIndex], pms: newPms };
       return { ...prev, vtrs: newVtrs };
     });
   };
@@ -219,7 +262,10 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl, onNaviga
     setData(prev => {
       const newVtrs = [...prev.vtrs, {
         tipo: 'ORDINÁRIO', horario: '07h as 19h', prefixo: '', funcao: '',
-        cmt: { nome: '', id: '' }, mot: { nome: '', id: '' }
+        pms: [
+          { funcao: 'CMT', nome: '', id: '' },
+          { funcao: 'MOT', nome: '', id: '' }
+        ]
       }];
       return { ...prev, vtrs: newVtrs };
     });
@@ -282,7 +328,15 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl, onNaviga
   };
 
   const totalVtrs = data.vtrs.length;
-  const totalPms = data.vtrs.reduce((acc, v) => acc + (v.cmt.nome.trim() ? 1 : 0) + (v.mot.nome.trim() ? 1 : 0), 0);
+  const totalPms = data.vtrs.reduce((acc, v) => {
+    let count = 0;
+    if (v.pms) {
+      count = v.pms.reduce((pmAcc, pm) => pmAcc + (pm.nome.trim() ? 1 : 0), 0);
+    } else {
+      count = (v.cmt?.nome?.trim() ? 1 : 0) + (v.mot?.nome?.trim() ? 1 : 0);
+    }
+    return acc + count;
+  }, 0);
 
   const generateReportText = () => {
     const formatListText = (arr) => arr.filter(i => i.trim() !== '').join(', ') || 'S/A';
@@ -302,8 +356,15 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl, onNaviga
     data.vtrs.forEach(v => {
       text += `*VTR ${v.tipo.toUpperCase()}: (${v.horario})*\n`;
       text += `*VTR ${v.prefixo}:${v.funcao.toUpperCase()}*\n`;
-      if (v.cmt.nome) text += `${v.cmt.nome} (${v.cmt.id}) - CMT\n`;
-      if (v.mot.nome) text += `${v.mot.nome} (${v.mot.id}) - MOT\n`;
+      
+      if (v.pms) {
+        v.pms.forEach(pm => {
+          if (pm.nome) text += `${pm.nome} (${pm.id}) - ${pm.funcao}\n`;
+        });
+      } else {
+        if (v.cmt?.nome) text += `${v.cmt.nome} (${v.cmt.id}) - CMT\n`;
+        if (v.mot?.nome) text += `${v.mot.nome} (${v.mot.id}) - MOT\n`;
+      }
       text += '\n';
     });
 
@@ -862,46 +923,48 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl, onNaviga
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* CMT */}
-                    <div className="flex flex-col gap-3 p-4 bg-white rounded-lg border border-slate-100 shadow-sm">
-                      <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">Comandante (CMT)</span>
-                      <div className="flex flex-col gap-2">
-                        <input
-                          type="text"
-                          placeholder="Graduação/Nome"
-                          value={vtr.cmt.nome}
-                          onChange={e => handleVtrMemberUpdate(idx, 'cmt', 'nome', e.target.value)}
-                          className="glass-input px-3 py-2 text-sm rounded-lg bg-white"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Digite a CI aqui"
-                          value={vtr.cmt.id}
-                          onChange={e => handleVtrMemberUpdate(idx, 'cmt', 'id', e.target.value)}
-                          className="glass-input px-3 py-2 text-sm rounded-lg bg-white"
-                        />
+                    {vtr.pms && vtr.pms.map((pm, pmIdx) => (
+                      <div key={pmIdx} className="flex flex-col gap-3 p-4 bg-white rounded-lg border border-slate-100 shadow-sm relative group/pm">
+                        {pmIdx >= 2 && (
+                          <button onClick={() => removePmFromVtr(idx, pmIdx)} className="absolute top-3 right-3 text-rose-500 opacity-0 group-hover/pm:opacity-100 hover:bg-rose-100 p-1.5 rounded transition-all cursor-pointer" title="Remover PM">
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                        <div className="flex items-center gap-2">
+                          <select
+                            value={pm.funcao}
+                            onChange={e => handleVtrPmUpdate(idx, pmIdx, 'funcao', e.target.value)}
+                            className="text-xs font-bold text-slate-600 uppercase tracking-wide bg-slate-100 border border-slate-200 rounded px-2 py-1 outline-none cursor-pointer focus:border-blue-500"
+                          >
+                            <option value="CMT">CMT (Comandante)</option>
+                            <option value="MOT">MOT (Motorista)</option>
+                            <option value="PAT">PAT (Patrulheiro)</option>
+                            <option value="EST">EST (Estagiário)</option>
+                          </select>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <input
+                            type="text"
+                            placeholder="Graduação/Nome"
+                            value={pm.nome}
+                            onChange={e => handleVtrPmUpdate(idx, pmIdx, 'nome', e.target.value)}
+                            className="glass-input px-3 py-2 text-sm rounded-lg bg-white"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Digite a CI aqui"
+                            value={pm.id}
+                            onChange={e => handleVtrPmUpdate(idx, pmIdx, 'id', e.target.value)}
+                            className="glass-input px-3 py-2 text-sm rounded-lg bg-white"
+                          />
+                        </div>
                       </div>
-                    </div>
-                    {/* MOT */}
-                    <div className="flex flex-col gap-3 p-4 bg-white rounded-lg border border-slate-100 shadow-sm">
-                      <span className="text-xs font-bold text-slate-400 uppercase tracking-wide">Motorista (MOT)</span>
-                      <div className="flex flex-col gap-2">
-                        <input
-                          type="text"
-                          placeholder="Graduação/Nome"
-                          value={vtr.mot.nome}
-                          onChange={e => handleVtrMemberUpdate(idx, 'mot', 'nome', e.target.value)}
-                          className="glass-input px-3 py-2 text-sm rounded-lg bg-white"
-                        />
-                        <input
-                          type="text"
-                          placeholder="Digite a CI aqui"
-                          value={vtr.mot.id}
-                          onChange={e => handleVtrMemberUpdate(idx, 'mot', 'id', e.target.value)}
-                          className="glass-input px-3 py-2 text-sm rounded-lg bg-white"
-                        />
-                      </div>
-                    </div>
+                    ))}
+                    
+                    <button onClick={() => addPmToVtr(idx)} className="flex flex-col items-center justify-center gap-2 p-4 bg-slate-100/50 hover:bg-slate-100 border border-dashed border-slate-300 hover:border-slate-400 rounded-lg shadow-sm transition-all text-slate-500 hover:text-slate-700 cursor-pointer h-full min-h-[140px]">
+                      <Plus className="w-6 h-6" />
+                      <span className="text-xs font-bold uppercase tracking-wide">Adicionar PM</span>
+                    </button>
                   </div>
                 </div>
               ))}

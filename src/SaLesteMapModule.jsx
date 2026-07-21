@@ -290,14 +290,20 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl, onNavi
           d.vtrs.forEach(vtr => {
             const isSeg = vtr.tipo === 'SEG';
 
+            let pmCount = 0;
+            if (vtr.pms) {
+              pmCount = vtr.pms.reduce((acc, pm) => acc + (pm.nome?.trim() ? 1 : 0), 0);
+            } else {
+              if (vtr.cmt?.nome?.trim()) pmCount++;
+              if (vtr.mot?.nome?.trim()) pmCount++;
+            }
+
             if (isSeg) {
               vtrSegCount++;
-              if (vtr.cmt?.nome) pmSegCount++;
-              if (vtr.mot?.nome) pmSegCount++;
+              pmSegCount += pmCount;
             } else {
               vtrOrdCount++;
-              if (vtr.cmt?.nome) pmOrdCount++;
-              if (vtr.mot?.nome) pmOrdCount++;
+              pmOrdCount += pmCount;
             }
           });
 
