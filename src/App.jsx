@@ -223,7 +223,8 @@ function App() {
       {/* Footer institutional */}
       <footer className="text-center text-slate-500 text-xs mt-12 px-6">
         <p className="font-semibold">Batalhão Leste © 2026 - Polícia Militar do Amazonas</p>
-        <p className="mt-1">PWA offline habilitado. Seus dados são salvos localmente e permanecem protegidos.</p>
+        <p className="mt-1">PWA online habilitado. Seus dados são salvos em Banco de Dados e permanecem protegidos.</p>
+        <p className="mt-1">Sistema desenvolvido pelo CB PM Luciano Costa com recursos avançados de IA.</p>
       </footer>
     </div>
   );

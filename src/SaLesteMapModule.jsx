@@ -1132,7 +1132,7 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
             <div className="glass-panel p-5 rounded-2xl flex items-center justify-between border-l-4 border-l-emerald-500 shadow-sm">
               <div>
                 <span className="text-xs font-bold uppercase tracking-wider text-slate-400 block">Conexão Local</span>
-                <span className="text-lg font-bold text-emerald-600 mt-1 block">Operação Offline OK</span>
+                <span className="text-lg font-bold text-emerald-600 mt-1 block">Operação Online OK</span>
               </div>
               <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-600">
                 <CheckCircle2 className="w-6 h-6" />

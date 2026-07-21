@@ -850,7 +850,7 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
                       />
                     </div>
                     <div className="flex flex-col gap-1.5">
-                      <label className="text-xs font-bold text-slate-500 uppercase">Função</label>
+                      <label className="text-xs font-bold text-slate-500 uppercase">Função Designada</label>
                       <input
                         type="text"
                         value={vtr.funcao}
