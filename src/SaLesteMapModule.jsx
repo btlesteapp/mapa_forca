@@ -800,7 +800,7 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl, onNavi
   // ----------------------------------------------------
 
   const formatSingleOccurrence = (occ) => {
-    const nature = occ.nature.trim() || 'Ocorrência de relevo';
+    const nature = occ.nature.trim() || 'Ocorrências';
     const ciopsVal = occ.ciopsInProg ? 'Ocorrência em Andamento, aguardando numeral' : occ.ciops.trim();
     const boVal = occ.boInProg ? 'Ocorrência em Andamento, aguardando numeral' : occ.bo.trim();
 
@@ -1507,7 +1507,7 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl, onNavi
                 </div>
                 <div>
                   <h2 className="text-xl font-black text-slate-800 tracking-tight uppercase">Resumo de Ocorrências</h2>
-                  <p className="text-xs font-semibold text-slate-500 mt-1">Lançamento de ocorrências de relevo por unidade.</p>
+                  <p className="text-xs font-semibold text-slate-500 mt-1">Lançamento de ocorrências por unidade.</p>
                 </div>
               </div>
               <div className="px-4 py-2 bg-slate-100 rounded-lg border border-slate-200 text-sm font-bold text-slate-600">

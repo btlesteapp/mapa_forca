@@ -1071,7 +1071,7 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl, onNaviga
       {/* OCORRENCIAS CICOM UI */}
       {
         activeTab === 'ocorrencias_cicom' && (
-          <div className="flex flex-col gap-8 animate-fade-in max-w-5xl mx-auto w-full pb-8">
+          <div className="flex flex-col gap-8 animate-fade-in max-w-7xl mx-auto w-full pb-8">
             <section className="glass-panel p-6 md:p-8 rounded-2xl">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-slate-200 pb-4 mb-6">
                 <div className="flex items-center gap-3">
