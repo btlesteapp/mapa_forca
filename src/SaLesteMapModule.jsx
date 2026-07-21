@@ -219,6 +219,26 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
       return;
     }
 
+    const saLesteData = serverMapas?.find(m => m.cicom_name === 'SA LESTE');
+    if (saLesteData) {
+      if (saLesteData.header_payload) {
+        setHeader(prev => ({
+          ...prev,
+          ...saLesteData.header_payload,
+          data: prev.data,
+          turno: prev.turno
+        }));
+      }
+      if (saLesteData.mapa_payload) {
+        if (saLesteData.mapa_payload.faltas) setFaltas(saLesteData.mapa_payload.faltas);
+        if (saLesteData.mapa_payload.atrasos) setAtrasos(saLesteData.mapa_payload.atrasos);
+        if (saLesteData.mapa_payload.dispensas) setDispensas(saLesteData.mapa_payload.dispensas);
+      }
+      if (saLesteData.ocorrencias_payload) {
+        setOccurrences(saLesteData.ocorrencias_payload);
+      }
+    }
+
     const cicomMap = {
       '4-cicom': '4ª CICOM',
       '9-cicom': '9ª CICOM',
@@ -231,12 +251,20 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
     };
 
     setUnits(prev => prev.map(u => {
-      if (u.isHQ || !cicomMap[u.id]) return u;
+      let newUnit = { ...u };
+
+      if (u.isHQ) {
+        if (saLesteData?.mapa_payload?.units) {
+          const savedHq = saLesteData.mapa_payload.units.find(su => su.id === u.id);
+          if (savedHq) newUnit = { ...savedHq };
+        }
+        return newUnit;
+      }
+
+      if (!cicomMap[u.id]) return u;
 
       const cicomName = cicomMap[u.id];
       const serverMapa = serverMapas?.find(m => m.cicom_name === cicomName);
-
-      let newUnit = { ...u };
 
       if (serverMapa) {
         const h = serverMapa.header_payload || {};
