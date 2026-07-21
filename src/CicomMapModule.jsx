@@ -162,9 +162,9 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
   const [occurrences, setOccurrences] = useState(() => {
     try {
       const saved = localStorage.getItem('mf_occurrences_cicom');
-      return saved ? JSON.parse(saved) : { ...INITIAL_OCCURRENCES };
+      return saved ? JSON.parse(saved) : {};
     } catch (e) {
-      return { ...INITIAL_OCCURRENCES };
+      return {};
     }
   });
 
