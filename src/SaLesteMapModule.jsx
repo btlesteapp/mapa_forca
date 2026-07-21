@@ -98,6 +98,15 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl, onNavi
     return INITIAL_UNITS;
   });
 
+  const [serverMapas, setServerMapas] = useState(() => {
+    try {
+      const saved = localStorage.getItem('mf_server_mapas_sa');
+      return saved ? JSON.parse(saved) : null;
+    } catch (e) {
+      return null;
+    }
+  });
+
   // Mapa da Força Alterations states
   const [faltas, setFaltas] = useState(() => {
     try {
@@ -143,6 +152,12 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl, onNavi
   useEffect(() => {
     localStorage.setItem('mf_units_sa', JSON.stringify(units));
   }, [units]);
+
+  useEffect(() => {
+    if (serverMapas) {
+      localStorage.setItem('mf_server_mapas_sa', JSON.stringify(serverMapas));
+    }
+  }, [serverMapas]);
 
   useEffect(() => {
     localStorage.setItem('mf_faltas_sa', JSON.stringify(faltas));
@@ -205,13 +220,12 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl, onNavi
   };
 
   const handleSyncFromCicom = async () => {
-    if (showToast) showToast('Sincronizando do servidor...', 'info');
+    if (showToast) showToast('Buscando dados das CICOMs no servidor...', 'info');
 
-    const { data: serverMapas, error } = await supabase
+    const { data: fetchedMapas, error } = await supabase
       .from('mapas_diarios')
       .select('*')
-      .eq('data_registro', header.data)
-      .eq('turno', header.turno);
+      .eq('data_registro', header.data);
 
     if (error) {
       console.error(error);
@@ -219,7 +233,9 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl, onNavi
       return;
     }
 
-    const saLesteData = serverMapas?.find(m => m.cicom_name === 'SA LESTE');
+    setServerMapas(fetchedMapas);
+
+    const saLesteData = fetchedMapas?.find(m => m.cicom_name === 'SA LESTE');
     if (saLesteData) {
       if (saLesteData.header_payload) {
         setHeader(prev => ({
@@ -264,7 +280,7 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl, onNavi
       if (!cicomMap[u.id]) return u;
 
       const cicomName = cicomMap[u.id];
-      const serverMapa = serverMapas?.find(m => m.cicom_name === cicomName);
+      const serverMapa = fetchedMapas?.find(m => m.cicom_name === cicomName);
 
       if (serverMapa) {
         const h = serverMapa.header_payload || {};
@@ -758,6 +774,103 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl, onNavi
       doc.setFontSize(9);
       doc.setTextColor(...navyBlue);
       doc.text("* BOM SERVIÇO A TODOS! *", 82, currentY);
+
+      // --- DETALHAMENTO DE VIATURAS POR UNIDADE ---
+      const checkPageBreak = (ySpaceNeeded) => {
+        if (currentY + ySpaceNeeded > 280) {
+          doc.addPage();
+          doc.setDrawColor(...navyBlue);
+          doc.setLineWidth(0.4);
+          doc.rect(6, 6, 198, 285);
+          currentY = 15;
+        }
+      };
+
+      if (serverMapas && serverMapas.length > 0) {
+        checkPageBreak(30);
+        currentY += 15;
+
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.setFillColor(...navyDark);
+        doc.rect(12, currentY, 186, 7, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.text("DETALHAMENTO DE VIATURAS POR UNIDADE", 105, currentY + 5, { align: "center" });
+        currentY += 12;
+
+        const cicomMap = {
+          'cpa-leste': 'SA LESTE',
+          '4-cicom': '4ª CICOM',
+          '9-cicom': '9ª CICOM',
+          '11-cicom': '11ª CICOM',
+          '14-cicom': '14ª CICOM',
+          '25-cicom': '25ª CICOM',
+          '28-cicom': '28ª CICOM',
+          '29-cicom': '29ª CICOM',
+          '30-cicom': '30ª CICOM'
+        };
+
+        units.forEach(u => {
+          const cicomName = cicomMap[u.id];
+          if (!cicomName) return;
+
+          const cicomData = serverMapas?.find(m => m.cicom_name === cicomName)?.mapa_payload;
+          if (!cicomData || !cicomData.vtrs || cicomData.vtrs.length === 0) return;
+
+          checkPageBreak(20);
+
+          doc.setFont("helvetica", "bold");
+          doc.setFontSize(9);
+          doc.setTextColor(...navyDark);
+          doc.text(`${cicomName} - SSA: ${u.supervisor || 'N/C'}`, 12, currentY);
+          currentY += 2;
+          doc.setDrawColor(...borderGray);
+          doc.line(12, currentY, 198, currentY);
+          currentY += 4;
+
+          cicomData.vtrs.forEach(vtr => {
+            checkPageBreak(15);
+
+            doc.setFillColor(248, 250, 252);
+            doc.rect(12, currentY, 186, 5, 'F');
+            
+            doc.setFont("helvetica", "bold");
+            doc.setFontSize(8);
+            doc.setTextColor(...textDark);
+            doc.text(`VTR ${vtr.prefixo} (${vtr.tipo}) - ${vtr.horario}`, 14, currentY + 3.5);
+            currentY += 7;
+
+            doc.setFont("helvetica", "normal");
+            doc.setFontSize(7.5);
+            doc.setTextColor(71, 85, 105);
+
+            const pmsToPrint = [];
+            if (vtr.pms) {
+              vtr.pms.forEach(pm => {
+                if (pm.nome) pmsToPrint.push(`• ${pm.nome} (${pm.id}) - ${pm.funcao}`);
+              });
+            } else {
+              if (vtr.cmt?.nome) pmsToPrint.push(`• ${vtr.cmt.nome} (${vtr.cmt.id}) - CMT`);
+              if (vtr.mot?.nome) pmsToPrint.push(`• ${vtr.mot.nome} (${vtr.mot.id}) - MOT`);
+            }
+
+            if (pmsToPrint.length === 0) {
+              pmsToPrint.push("• Sem militares registrados.");
+            }
+
+            pmsToPrint.forEach(pmText => {
+              checkPageBreak(6);
+              doc.text(pmText, 18, currentY);
+              currentY += 4;
+            });
+
+            currentY += 3;
+          });
+
+          currentY += 5;
+        });
+      }
+      // --- END DETALHAMENTO ---
 
       const fileDate = header.data ? header.data.replace(/-/g, '_') : 'data';
       doc.save(`MAPA_DA_FORCA_${fileDate}.pdf`);
