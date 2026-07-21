@@ -123,20 +123,20 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl, onNaviga
   const patchData = (parsedData) => {
     const patchedVtrs = (parsedData.vtrs || []).map(vtr => {
       if (vtr.pms) return vtr;
-      
+
       const pms = [];
       if (vtr.cmt) {
         pms.push({ funcao: 'CMT', nome: vtr.cmt.nome || '', id: vtr.cmt.id || '' });
       } else {
         pms.push({ funcao: 'CMT', nome: '', id: '' });
       }
-      
+
       if (vtr.mot) {
         pms.push({ funcao: 'MOT', nome: vtr.mot.nome || '', id: vtr.mot.id || '' });
       } else {
         pms.push({ funcao: 'MOT', nome: '', id: '' });
       }
-      
+
       const newVtr = { ...vtr, pms };
       delete newVtr.cmt;
       delete newVtr.mot;
@@ -356,14 +356,14 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl, onNaviga
     data.vtrs.forEach(v => {
       text += `*VTR ${v.tipo.toUpperCase()}: (${v.horario})*\n`;
       text += `*VTR ${v.prefixo}:${v.funcao.toUpperCase()}*\n`;
-      
+
       if (v.pms) {
         v.pms.forEach(pm => {
-          if (pm.nome) text += `${pm.nome} (${pm.id}) - ${pm.funcao}\n`;
+          if (pm.nome) text += ` ${pm.nome} (${pm.id})-${pm.funcao}\n`;
         });
       } else {
-        if (v.cmt?.nome) text += `${v.cmt.nome} (${v.cmt.id}) - CMT\n`;
-        if (v.mot?.nome) text += `${v.mot.nome} (${v.mot.id}) - MOT\n`;
+        if (v.cmt?.nome) text += `${v.cmt.nome} (${v.cmt.id})-CMT\n`;
+        if (v.mot?.nome) text += `${v.mot.nome} (${v.mot.id})-MOT\n`;
       }
       text += '\n';
     });
@@ -939,7 +939,7 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl, onNaviga
                             <option value="CMT">CMT (Comandante)</option>
                             <option value="MOT">MOT (Motorista)</option>
                             <option value="PAT">PAT (Patrulheiro)</option>
-                            <option value="EST">EST (Estagiário)</option>
+
                           </select>
                         </div>
                         <div className="flex flex-col gap-2">
@@ -960,7 +960,7 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl, onNaviga
                         </div>
                       </div>
                     ))}
-                    
+
                     <button onClick={() => addPmToVtr(idx)} className="flex flex-col items-center justify-center gap-2 p-4 bg-slate-100/50 hover:bg-slate-100 border border-dashed border-slate-300 hover:border-slate-400 rounded-lg shadow-sm transition-all text-slate-500 hover:text-slate-700 cursor-pointer h-full min-h-[140px]">
                       <Plus className="w-6 h-6" />
                       <span className="text-xs font-bold uppercase tracking-wide">Adicionar PM</span>
