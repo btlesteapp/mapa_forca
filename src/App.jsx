@@ -206,6 +206,7 @@ function App() {
               showToast={showToast}
               activeTab={activeTab}
               logoUrl={logoUrl}
+              onNavigateHome={() => setCurrentModule('home')}
             />
           )}
 
@@ -214,6 +215,7 @@ function App() {
               showToast={showToast}
               activeTab={activeTab}
               logoUrl={logoUrl}
+              onNavigateHome={() => setCurrentModule('home')}
             />
           )}
 

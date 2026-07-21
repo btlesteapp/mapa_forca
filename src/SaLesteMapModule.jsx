@@ -3,7 +3,7 @@ import { jsPDF } from 'jspdf';
 import {
   Copy, Plus, Trash2, CarFront, Users, User, Shield, Calendar, Clock, Phone, IdCard,
   FileCheck, Turntable, CarFrontIcon, AlertTriangle, FileText, Download, MapPin,
-  CheckCircle2, ClipboardList, CloudUpload
+  CheckCircle2, ClipboardList, CloudUpload, Home
 } from 'lucide-react';
 import { supabase } from './supabaseClient.js';
 import { POLICIAIS } from './data/policiais.js';
@@ -21,7 +21,7 @@ import {
   NATURE_SUGGESTIONS
 } from './Shared.jsx';
 
-export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
+export default function SaLesteMapModule({ showToast, activeTab, logoUrl, onNavigateHome }) {
   const [header, setHeader] = useState(() => {
     try {
       const saved = localStorage.getItem('mf_header_sa');
@@ -1478,13 +1478,20 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
               <FileText className="w-4 h-4" />
               Gerar Relatório PDF
             </button>
-
             <button
               onClick={() => setShowClearConfirm(true)}
               className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 font-bold uppercase tracking-wider text-xs rounded-xl bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 hover:border-rose-300 transition-all cursor-pointer"
             >
               <Trash2 className="w-4 h-4" />
               Limpar Dados
+            </button>
+
+            <button
+              onClick={onNavigateHome}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 font-bold uppercase tracking-wider text-xs rounded-xl bg-slate-800 hover:bg-slate-900 text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
+            >
+              <Home className="w-4 h-4" />
+              Voltar ao Início
             </button>
           </section>
         </>
@@ -1659,6 +1666,14 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
             >
               <Trash2 className="w-4 h-4" />
               Limpar Resumo
+            </button>
+
+            <button
+              onClick={onNavigateHome}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 font-bold uppercase tracking-wider text-xs rounded-xl bg-slate-800 hover:bg-slate-900 text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
+            >
+              <Home className="w-4 h-4" />
+              Voltar ao Início
             </button>
           </section>
         </>

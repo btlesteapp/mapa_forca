@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { jsPDF } from 'jspdf';
 import {
   Copy, Plus, Trash2, CarFront, Users, User, Shield, Calendar, Clock, Phone, IdCard,
-  FileCheck, Turntable, CarFrontIcon, AlertTriangle, FileText, Download, CloudUpload
+  FileCheck, Turntable, CarFrontIcon, AlertTriangle, FileText, Download, CloudUpload, Home
 } from 'lucide-react';
 import { supabase } from './supabaseClient.js';
 import { POLICIAIS } from './data/policiais.js';
@@ -42,7 +42,7 @@ const INITIAL_CICOM_STATE = {
   dispensas: ['S/A']
 };
 
-export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
+export default function CicomMapModule({ showToast, activeTab, logoUrl, onNavigateHome }) {
   // ACTIVE CICOM
   const [activeCicom, setActiveCicom] = useState(() => {
     return localStorage.getItem('mf_active_cicom') || '4ª CICOM';
@@ -1055,6 +1055,14 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
                 </div>
               )}
             </div>
+
+            <button
+              onClick={onNavigateHome}
+              className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 font-bold uppercase tracking-wider text-xs rounded-xl bg-slate-800 hover:bg-slate-900 text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
+            >
+              <Home className="w-4 h-4" />
+              Voltar ao Início
+            </button>
           </section>
         </div>
       )
@@ -1224,6 +1232,14 @@ export default function CicomMapModule({ showToast, activeTab, logoUrl }) {
               >
                 <Trash2 className="w-4 h-4" />
                 Limpar Resumo
+              </button>
+
+              <button
+                onClick={onNavigateHome}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 font-bold uppercase tracking-wider text-xs rounded-xl bg-slate-800 hover:bg-slate-900 text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
+              >
+                <Home className="w-4 h-4" />
+                Voltar ao Início
               </button>
             </section>
           </div>
