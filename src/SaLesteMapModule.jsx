@@ -819,10 +819,18 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl, onNavi
 
           checkPageBreak(20);
 
+          let nameField = u.supervisor;
+          let idField = u.supervisorId;
+          if (u.isHQ) {
+            nameField = header.cpoNome;
+            idField = header.cpoId;
+          }
+          const supDisplay = nameField ? `${nameField} (${idField || 'S/ID'})` : 'N/C';
+
           doc.setFont("helvetica", "bold");
           doc.setFontSize(9);
           doc.setTextColor(...navyDark);
-          doc.text(`${cicomName} - SSA: ${u.supervisor || 'N/C'}`, 12, currentY);
+          doc.text(`${cicomName} - SSA: ${supDisplay}`, 12, currentY);
           currentY += 2;
           doc.setDrawColor(...borderGray);
           doc.line(12, currentY, 198, currentY);
@@ -837,7 +845,9 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl, onNavi
             doc.setFont("helvetica", "bold");
             doc.setFontSize(8);
             doc.setTextColor(...textDark);
-            doc.text(`VTR ${vtr.prefixo} (${vtr.tipo}) - ${vtr.horario}`, 14, currentY + 3.5);
+            
+            const vtrFuncao = vtr.funcao ? ` - ${vtr.funcao.toUpperCase()}` : '';
+            doc.text(`VTR ${vtr.prefixo} (${vtr.tipo}) - ${vtr.horario}${vtrFuncao}`, 14, currentY + 3.5);
             currentY += 7;
 
             doc.setFont("helvetica", "normal");
