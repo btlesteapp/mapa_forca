@@ -3,7 +3,7 @@ import { jsPDF } from 'jspdf';
 import {
   Copy, Plus, Trash2, CarFront, Users, User, Shield, Calendar, Clock, Phone, IdCard,
   FileCheck, Turntable, CarFrontIcon, AlertTriangle, FileText, Download, MapPin,
-  CheckCircle2, ClipboardList
+  CheckCircle2, ClipboardList, CloudUpload
 } from 'lucide-react';
 import { supabase } from './supabaseClient.js';
 import { POLICIAIS } from './data/policiais.js';
@@ -300,6 +300,37 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
     }));
 
     if (showToast) showToast('Sincronizado com o servidor!', 'success');
+  };
+
+  const handleSaveToSupabase = async () => {
+    try {
+      if (showToast) showToast('Salvando no servidor...', 'info');
+
+      const payload = {
+        cicom_name: 'SA LESTE',
+        data_registro: header.data,
+        turno: header.turno,
+        header_payload: header,
+        mapa_payload: {
+          units,
+          faltas,
+          atrasos,
+          dispensas
+        },
+        ocorrencias_payload: occurrences
+      };
+
+      const { error } = await supabase
+        .from('mapas_diarios')
+        .upsert(payload, { onConflict: 'cicom_name,data_registro,turno' });
+
+      if (error) throw error;
+
+      if (showToast) showToast('Dados do SA Leste salvos com sucesso!', 'success');
+    } catch (err) {
+      console.error('Erro Supabase:', err);
+      if (showToast) showToast('Erro ao salvar no servidor.', 'error');
+    }
   };
 
   const handleAddIncidentItem = (category) => {
@@ -1147,7 +1178,14 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
                 <ClipboardList className="w-5 h-5 text-blue-600" />
                 <h2 className="text-lg font-bold text-slate-800 tracking-wide uppercase">MONTAGEM DO EFETIVO DO MAPA DA FORÇA - BATALHÃO LESTE</h2>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  onClick={handleSaveToSupabase}
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 font-bold uppercase tracking-wider text-xs rounded-xl bg-blue-600 hover:bg-blue-700 text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
+                >
+                  <CloudUpload className="w-4 h-4" />
+                  Salvar no Banco
+                </button>
                 <button
                   onClick={handleSyncFromCicom}
                   className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 font-bold uppercase tracking-wider text-xs rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white shadow-md hover:shadow-lg transition-all cursor-pointer"
@@ -1155,7 +1193,6 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl }) {
                   <Download className="w-4 h-4" />
                   Sincronizar Dados (Nuvem)
                 </button>
-                <span className="text-xs font-medium text-slate-505 italic hidden sm:block">Preenchimento de Efetivos e Viaturas</span>
               </div>
             </div>
 
