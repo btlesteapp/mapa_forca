@@ -768,13 +768,6 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl, onNavi
       doc.text(`Atrasos Registrados: ${formatIncidentText(atrasos)}`, 14, currentY + 5.5);
       doc.text(`Dispensas Justificadas: ${formatIncidentText(dispensas)}`, 14, currentY + 11);
 
-      // Footer message
-      currentY += 30;
-      doc.setFont("helvetica", "bolditalic");
-      doc.setFontSize(9);
-      doc.setTextColor(...navyBlue);
-      doc.text("* BOM SERVIÇO A TODOS! *", 82, currentY);
-
       // --- DETALHAMENTO DE VIATURAS POR UNIDADE ---
       const checkPageBreak = (ySpaceNeeded) => {
         if (currentY + ySpaceNeeded > 280) {
@@ -881,6 +874,14 @@ export default function SaLesteMapModule({ showToast, activeTab, logoUrl, onNavi
         });
       }
       // --- END DETALHAMENTO ---
+
+      // Footer message
+      checkPageBreak(20);
+      currentY += 15;
+      doc.setFont("helvetica", "bolditalic");
+      doc.setFontSize(9);
+      doc.setTextColor(...navyBlue);
+      doc.text("* BOM SERVIÇO A TODOS! *", 105, currentY, { align: "center" });
 
       const fileDate = header.data ? header.data.replace(/-/g, '_') : 'data';
       doc.save(`MAPA_DA_FORCA_${fileDate}.pdf`);
