@@ -1,14 +1,14 @@
-const CACHE_NAME = 'mapa-da-forca-v2';
+const CACHE_NAME = 'mapa-da-forca-v2.1';
 const ASSETS_TO_CACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/logo.png',
-  '/assets/index.js',
-  '/assets/index.css',
-  '/assets/purify.es.js',
-  '/assets/index.es.js',
-  '/assets/html2canvas.js'
+  './',
+  './index.html',
+  './manifest.json',
+  './logo.png',
+  './assets/index.js',
+  './assets/index.css',
+  './assets/purify.es.js',
+  './assets/index.es.js',
+  './assets/html2canvas.js'
 ];
 
 // Install Event - cache core static assets
@@ -69,8 +69,8 @@ self.addEventListener('fetch', (event) => {
             return cachedResponse;
           }
           // If a page/document request and not cached, return index.html
-          if (event.request.headers.get('accept').includes('text/html')) {
-            return caches.match('/index.html');
+          if (event.request.headers.get('accept') && event.request.headers.get('accept').includes('text/html')) {
+            return caches.match('./index.html');
           }
         });
       })
