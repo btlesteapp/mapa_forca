@@ -5,7 +5,11 @@ import {
   RefreshCw,
   CarFront,
   CheckCircle2,
-  FileText
+  FileText,
+  Users,
+  Siren
+
+
 } from 'lucide-react';
 import './App.css';
 import CicomMapModule from './CicomMapModule.jsx';
@@ -176,7 +180,7 @@ function App() {
               className="group flex flex-col items-center justify-center gap-6 bg-white p-12 rounded-3xl shadow-lg border border-slate-200 hover:border-blue-500 hover:shadow-2xl transition-all cursor-pointer"
             >
               <div className="p-6 bg-blue-50 rounded-2xl group-hover:bg-blue-600 transition-colors">
-                <Shield className="w-20 h-20 text-blue-600 group-hover:text-white transition-colors" />
+                <Users className="w-20 h-20 text-blue-600 group-hover:text-white transition-colors" />
               </div>
               <h2 className="text-2xl font-extrabold text-slate-800 text-center tracking-tight">MAPA DA FORÇA<br />SA LESTE (CPO)</h2>
             </button>
@@ -189,7 +193,7 @@ function App() {
               className="group flex flex-col items-center justify-center gap-6 bg-white p-12 rounded-3xl shadow-lg border border-slate-200 hover:border-amber-500 hover:shadow-2xl transition-all cursor-pointer"
             >
               <div className="p-6 bg-amber-50 rounded-2xl group-hover:bg-amber-500 transition-colors">
-                <CarFront className="w-20 h-20 text-amber-600 group-hover:text-white transition-colors" />
+                <Siren className="w-20 h-20 text-amber-600 group-hover:text-white transition-colors" />
               </div>
               <h2 className="text-2xl font-extrabold text-slate-800 text-center tracking-tight">MAPA DA FORÇA<br />POR CICOM</h2>
             </button>
